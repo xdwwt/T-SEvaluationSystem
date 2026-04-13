@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserInfo {
     private int id;
+    private String userId;
     private String username;
     private String password;
     /**
@@ -20,4 +21,10 @@ public class UserInfo {
      * 2：学生
      */
     private int status;
+    /**
+     * 删除标志
+     * 0：未删除
+     * 1：已删除
+     */
+    private int isDele;
 }
