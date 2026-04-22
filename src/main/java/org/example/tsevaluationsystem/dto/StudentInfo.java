@@ -8,28 +8,25 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("tb_user_info")
-public class UserInfo {
+@TableName("tb_student_info")
+public class StudentInfo {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
-    private String userId;
-    private String username;
-    private String password;
+    private String studentNo;
+    private String name;
 
     /**
-     * 身份
-     * 0：管理员
-     * 1：教师
-     * 2：学生
+     * 性别
+     * 0：女
+     * 1：男
      */
-    private Integer status;
+    private Integer gender;
 
-    /**
-     * 关联教师/学生表ID
-     * 管理员为null
-     */
-    private Long infoId;
+    private String grade;
+    private String major;
+    private String phone;
+    private String email;
 
     /**
      * 删除标志
@@ -40,5 +37,4 @@ public class UserInfo {
 
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    private LocalDateTime lastLoginTime;
 }

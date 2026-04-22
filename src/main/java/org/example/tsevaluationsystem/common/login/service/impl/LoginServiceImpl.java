@@ -18,7 +18,10 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public Result login(UserInfo user) {
         UserInfo userInfo = loginMapper.selectUserLogin(user);
+        if (userInfo == null || userInfo.getIsDele() == 1) {
+            return new Result(0, "用户名或密码错误", null);
+        }
         String jwt = Jwt.getJwt(userInfo);
-        return new Result(1,"success",jwt);
+        return new Result(1, "success", jwt);
     }
 }

@@ -5,31 +5,19 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("tb_user_info")
-public class UserInfo {
+@TableName("tb_course")
+public class Course {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
-    private String userId;
-    private String username;
-    private String password;
-
-    /**
-     * 身份
-     * 0：管理员
-     * 1：教师
-     * 2：学生
-     */
-    private Integer status;
-
-    /**
-     * 关联教师/学生表ID
-     * 管理员为null
-     */
-    private Long infoId;
+    private String courseCode;
+    private String courseName;
+    private BigDecimal credit;
+    private String description;
 
     /**
      * 删除标志
@@ -40,5 +28,4 @@ public class UserInfo {
 
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    private LocalDateTime lastLoginTime;
 }
