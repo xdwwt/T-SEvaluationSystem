@@ -1,12 +1,26 @@
 <template>
-  <div class="login-container">
-    <h2>教学评价系统</h2>
-    <input v-model="username" placeholder="账号" />
-    <input v-model="password" type="password" placeholder="密码" @keyup.enter="handleLogin" />
-    <button @click="handleLogin" :disabled="loading">
-      {{ loading ? '登录中...' : '登录' }}
-    </button>
-    <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
+  <div class="login-page">
+    <div class="login-box">
+      <div class="login-header">
+        <div class="logo-icon">📚</div>
+        <h2>教学评价系统</h2>
+        <p>Teaching Evaluation System</p>
+      </div>
+      <div class="login-form">
+        <div class="input-group">
+          <label>账号</label>
+          <input v-model="username" placeholder="请输入账号" @keyup.enter="handleLogin" />
+        </div>
+        <div class="input-group">
+          <label>密码</label>
+          <input v-model="password" type="password" placeholder="请输入密码" @keyup.enter="handleLogin" />
+        </div>
+        <button @click="handleLogin" :disabled="loading" class="login-btn">
+          {{ loading ? '登录中...' : '登 录' }}
+        </button>
+        <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -56,24 +70,129 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('/images/login-bg.jpg') no-repeat center center;
+  background-size: cover;
+  position: relative;
+}
+
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.login-box {
+  width: 440px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+}
+
+.login-header {
+  background: #2c3e50;
+  color: white;
+  text-align: center;
+  padding: 40px 30px;
+}
+
+.logo-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.login-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.login-header p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.login-form {
+  padding: 35px 30px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 300px;
-  margin: 100px auto;
-  padding: 20px;
+  gap: 20px;
 }
-input, button {
-  padding: 10px;
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-button:disabled {
-  opacity: 0.6;
+
+.input-group label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.input-group input {
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.3s;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #aaa;
+}
+
+.login-btn {
+  padding: 14px;
+  background: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 5px;
+}
+
+.login-btn:hover {
+  background: #34495e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+}
+
+.login-btn:disabled {
+  background: #95a5a6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
+
 .error-msg {
   color: #e74c3c;
   font-size: 14px;
   text-align: center;
+  padding: 5px 0;
 }
 </style>
