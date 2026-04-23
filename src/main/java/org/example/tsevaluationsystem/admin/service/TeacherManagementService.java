@@ -3,6 +3,8 @@ package org.example.tsevaluationsystem.admin.service;
 import org.example.tsevaluationsystem.dto.Result;
 import org.example.tsevaluationsystem.dto.TeacherInfo;
 
+import java.util.Map;
+
 public interface TeacherManagementService {
     /**
      * 新增教师
@@ -12,11 +14,11 @@ public interface TeacherManagementService {
     Result insert(TeacherInfo teacherInfo);
 
     /**
-     * 查询教师列表
-     * @param teacherInfo
+     * 查询教师列表（分页）
+     * @param params
      * @return
      */
-    Result list(TeacherInfo teacherInfo);
+    Result list(Map<String, Object> params);
 
     /**
      * 重置密码

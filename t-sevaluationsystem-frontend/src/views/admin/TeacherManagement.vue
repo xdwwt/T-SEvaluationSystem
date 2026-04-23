@@ -84,6 +84,30 @@
       </table>
     </div>
 
+    <!-- 分页 -->
+    <div class="pagination-area" v-if="total > 0">
+      <div class="pagination-info">共 {{ total }} 条</div>
+      <div class="pagination-btns">
+        <button class="page-btn" :disabled="pageNum === 1" @click="handlePrevPage">上一页</button>
+        <button
+          v-for="p in visiblePages"
+          :key="p"
+          class="page-btn"
+          :class="{ active: p === pageNum }"
+          @click="handlePageChange(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="page-btn" :disabled="pageNum === pages" @click="handleNextPage">下一页</button>
+      </div>
+      <div class="pagination-jump">
+        <span>跳至</span>
+        <input v-model.number="jumpPage" type="number" min="1" :max="pages" @keyup.enter="handleJumpPage" />
+        <span>页</span>
+        <button class="page-btn jump-btn" @click="handleJumpPage">GO</button>
+      </div>
+    </div>
+
     <!-- 成功提示弹窗 -->
     <ConfirmDialog
       v-model:visible="showSuccess"
@@ -203,7 +227,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { addTeacherApi, listTeacherApi, resetPasswordApi } from '@/api/teacher.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
@@ -215,6 +239,12 @@ const showSuccess = ref(false)
 const showResetConfirm = ref(false)
 const showResetSuccess = ref(false)
 const resetUserId = ref('')
+
+// 分页
+const pageNum = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+const pages = ref(0)
 
 const searchForm = ref({
   teacherNo: '',
@@ -236,10 +266,12 @@ const form = ref({
 
 const fetchList = async () => {
   try {
-    const res = await listTeacherApi(searchForm.value)
+    const res = await listTeacherApi(searchForm.value, pageNum.value, pageSize.value)
     console.log('后端返回:', res)
     if (res.code === 1) {
-      tableData.value = res.data || []
+      tableData.value = res.data.records || []
+      total.value = res.data.total || 0
+      pages.value = res.data.pages || 0
     } else {
       console.warn('接口返回非成功状态:', res)
     }
@@ -249,6 +281,7 @@ const fetchList = async () => {
 }
 
 const handleSearch = () => {
+  pageNum.value = 1
   fetchList()
 }
 
@@ -259,8 +292,52 @@ const handleReset = () => {
     title: '',
     department: ''
   }
+  pageNum.value = 1
   fetchList()
 }
+
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > pages.value) return
+  pageNum.value = newPage
+  fetchList()
+}
+
+const handlePrevPage = () => {
+  if (pageNum.value > 1) {
+    pageNum.value--
+    fetchList()
+  }
+}
+
+const handleNextPage = () => {
+  if (pageNum.value < pages.value) {
+    pageNum.value++
+    fetchList()
+  }
+}
+
+const jumpPage = ref('')
+const handleJumpPage = () => {
+  const num = parseInt(jumpPage.value)
+  if (num && num >= 1 && num <= pages.value) {
+    handlePageChange(num)
+    jumpPage.value = ''
+  }
+}
+
+const visiblePages = computed(() => {
+  const result = []
+  const maxVisible = 5
+  let start = Math.max(1, pageNum.value - Math.floor(maxVisible / 2))
+  let end = Math.min(pages.value, start + maxVisible - 1)
+  if (end - start + 1 < maxVisible) {
+    start = Math.max(1, end - maxVisible + 1)
+  }
+  for (let i = start; i <= end; i++) {
+    result.push(i)
+  }
+  return result
+})
 
 const handleResetClick = (teacherNo) => {
   resetUserId.value = teacherNo
@@ -321,11 +398,16 @@ onMounted(() => {
 
 <style scoped>
 .teacher-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
   padding: 20px;
+  box-sizing: border-box;
 }
 
 /* 搜索区 */
 .search-area {
+  flex-shrink: 0;
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -373,6 +455,12 @@ onMounted(() => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-search:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-reset {
@@ -382,10 +470,17 @@ onMounted(() => {
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-reset:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 /* 操作按钮区 */
 .action-area {
+  flex-shrink: 0;
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
@@ -398,6 +493,12 @@ onMounted(() => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-add:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-refresh {
@@ -407,13 +508,21 @@ onMounted(() => {
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-refresh:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 /* 表格区 */
 .table-area {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
   background: white;
   border-radius: 8px;
-  overflow: hidden;
 }
 
 .table-area table {
@@ -455,6 +564,12 @@ onMounted(() => {
   border-radius: 4px;
   cursor: pointer;
   margin-right: 5px;
+  transition: all 0.15s;
+}
+
+.btn-edit:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-delete {
@@ -465,6 +580,12 @@ onMounted(() => {
   border-radius: 4px;
   cursor: pointer;
   margin-right: 5px;
+  transition: all 0.15s;
+}
+
+.btn-delete:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-reset {
@@ -474,6 +595,12 @@ onMounted(() => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-reset:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 /* 弹窗 */
@@ -590,6 +717,12 @@ onMounted(() => {
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.15s;
+}
+
+.btn-cancel:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-confirm {
@@ -600,6 +733,12 @@ onMounted(() => {
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.15s;
+}
+
+.btn-confirm:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-confirm:disabled {
@@ -611,5 +750,90 @@ onMounted(() => {
   color: #e74c3c;
   font-size: 14px;
   margin-top: 10px;
+}
+
+/* 分页 */
+.pagination-area {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+  padding: 12px 20px;
+  background: white;
+  border-radius: 8px;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.page-btn:active:not(:disabled) {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #2c3e50;
+  color: #2c3e50;
+}
+
+.page-btn.active {
+  background: #2c3e50;
+  color: white;
+  border-color: #2c3e50;
+}
+
+.page-btn:disabled {
+  cursor: not-allowed;
+  color: #bbb;
+  border-color: #eee;
+}
+
+.pagination-jump {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.pagination-jump input {
+  width: 50px;
+  padding: 5px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.jump-btn {
+  padding: 5px 12px;
+  background: #2c3e50;
+  color: white;
+  border: none;
+  transition: all 0.15s;
+}
+
+.jump-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 </style>

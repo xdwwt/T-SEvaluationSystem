@@ -4,8 +4,8 @@ export const addTeacherApi = (data) => {
   return request.post('/admin/teacher/insert', data)
 }
 
-export const listTeacherApi = (data) => {
-  return request.post('/admin/teacher/list', data)
+export const listTeacherApi = (data, pageNum = 1, pageSize = 20) => {
+  return request.post('/admin/teacher/list', { ...data, pageNum, pageSize })
 }
 
 export const resetPasswordApi = (userId) => {

@@ -94,11 +94,16 @@ const handleOverlayClick = () => {
   border: none;
   cursor: pointer;
   font-size: 14px;
-  transition: opacity 0.2s;
+  transition: all 0.15s;
 }
 
 .dialog-actions button:hover {
   opacity: 0.8;
+}
+
+.dialog-actions button:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-cancel {

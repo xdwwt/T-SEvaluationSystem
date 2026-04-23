@@ -5,6 +5,6 @@
 <mapper namespace="org.example.tsevaluationsystem.common.login.mapper.LoginMapper">
 
     <select id="selectUserLogin" resultType="org.example.tsevaluationsystem.dto.UserInfo">
-        SELECT * from tb_user_info where user_id = #{userId} and password = #{password}
+        SELECT * from tb_user_info where user_id = #{userId} and password = #{password} and is_dele = 0
     </select>
 </mapper>

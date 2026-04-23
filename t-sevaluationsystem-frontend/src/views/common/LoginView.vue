@@ -182,6 +182,11 @@ const handleLogin = async () => {
   box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
 }
 
+.login-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px rgba(44, 62, 80, 0.3);
+}
+
 .login-btn:disabled {
   background: #95a5a6;
   cursor: not-allowed;

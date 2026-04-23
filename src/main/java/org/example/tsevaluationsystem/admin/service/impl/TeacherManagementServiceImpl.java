@@ -2,6 +2,8 @@ package org.example.tsevaluationsystem.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.example.tsevaluationsystem.admin.mapper.TeacherManagementMapper;
 import org.example.tsevaluationsystem.admin.mapper.UserMapper;
 import org.example.tsevaluationsystem.admin.service.TeacherManagementService;
@@ -11,6 +13,10 @@ import org.example.tsevaluationsystem.dto.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class TeacherManagementServiceImpl implements TeacherManagementService {
@@ -56,25 +62,36 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
     }
 
     @Override
-    public Result list(TeacherInfo teacherInfo) {
+    public Result list(Map<String, Object> params) {
+        int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
+        int pageSize = params.get("pageSize") != null ? Integer.parseInt(params.get("pageSize").toString()) : 20;
+
         QueryWrapper<TeacherInfo> wrapper = new QueryWrapper<>();
         wrapper.eq("is_dele", 0);
-        if (teacherInfo != null) {
-            if (teacherInfo.getTeacherNo() != null && !teacherInfo.getTeacherNo().isEmpty()) {
-                wrapper.like("teacher_no", teacherInfo.getTeacherNo());
-            }
-            if (teacherInfo.getName() != null && !teacherInfo.getName().isEmpty()) {
-                wrapper.like("name", teacherInfo.getName());
-            }
-            if (teacherInfo.getTitle() != null && !teacherInfo.getTitle().isEmpty()) {
-                wrapper.eq("title", teacherInfo.getTitle());
-            }
-            if (teacherInfo.getDepartment() != null && !teacherInfo.getDepartment().isEmpty()) {
-                wrapper.eq("department", teacherInfo.getDepartment());
-            }
+
+        if (params.get("teacherNo") != null && !params.get("teacherNo").toString().isEmpty()) {
+            wrapper.like("teacher_no", params.get("teacherNo").toString());
         }
+        if (params.get("name") != null && !params.get("name").toString().isEmpty()) {
+            wrapper.like("name", params.get("name").toString());
+        }
+        if (params.get("title") != null && !params.get("title").toString().isEmpty()) {
+            wrapper.eq("title", params.get("title").toString());
+        }
+        if (params.get("department") != null && !params.get("department").toString().isEmpty()) {
+            wrapper.eq("department", params.get("department").toString());
+        }
+
         wrapper.orderByDesc("create_time");
-        return new Result(1, "success", teacherManagementMapper.selectList(wrapper));
+        PageHelper.startPage(pageNum, pageSize);
+        List<TeacherInfo> list = teacherManagementMapper.selectList(wrapper);
+        PageInfo<TeacherInfo> pageInfo = new PageInfo<>(list);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", pageInfo.getList());
+        result.put("total", pageInfo.getTotal());
+        result.put("pages", pageInfo.getPages());
+        return new Result(1, "success", result);
     }
 
     @Override

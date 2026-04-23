@@ -30,11 +30,11 @@ public class TeacherManagementController {
     }
 
     /**
-     * 查询教师列表
+     * 查询教师列表（分页）
      */
     @PostMapping("/list")
-    public Result list(@RequestBody TeacherInfo teacherInfo){
-        return teacherManagementService.list(teacherInfo);
+    public Result list(@RequestBody Map<String, Object> params){
+        return teacherManagementService.list(params);
     }
 
     /**
