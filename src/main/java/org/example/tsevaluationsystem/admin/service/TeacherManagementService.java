@@ -10,4 +10,18 @@ public interface TeacherManagementService {
      * @return
      */
     Result insert(TeacherInfo teacherInfo);
+
+    /**
+     * 查询教师列表
+     * @param teacherInfo
+     * @return
+     */
+    Result list(TeacherInfo teacherInfo);
+
+    /**
+     * 重置密码
+     * @param userId
+     * @return
+     */
+    Result resetPassword(String userId);
 }

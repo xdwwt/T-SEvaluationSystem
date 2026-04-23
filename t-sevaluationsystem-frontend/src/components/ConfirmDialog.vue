@@ -4,7 +4,7 @@
       <div class="dialog-title">{{ title }}</div>
       <div class="dialog-content">{{ message }}</div>
       <div class="dialog-actions">
-        <button class="btn-cancel" @click="handleCancel">取消</button>
+        <button class="btn-cancel" v-if="showCancel" @click="handleCancel">取消</button>
         <button class="btn-confirm" @click="handleConfirm">确定</button>
       </div>
     </div>
@@ -21,6 +21,10 @@ const props = defineProps({
   message: {
     type: String,
     default: ''
+  },
+  showCancel: {
+    type: Boolean,
+    default: true
   }
 })
 

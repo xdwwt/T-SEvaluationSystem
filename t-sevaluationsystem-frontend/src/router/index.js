@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/common/LoginView.vue'
 import AdminDashboard from '@/views/admin/AdminDashboard.vue'
+import TeacherManagement from '@/views/admin/TeacherManagement.vue'
 import StudentDashboard from '@/views/student/StudentDashboard.vue'
 import TeacherDashboard from '@/views/teacher/TeacherDashboard.vue'
 
@@ -18,6 +19,12 @@ const routes = [
     path: '/admin',
     name: 'AdminDashboard',
     component: AdminDashboard,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/teacher',
+    name: 'TeacherManagement',
+    component: TeacherManagement,
     meta: { requiresAuth: true, role: 0 }
   },
   {

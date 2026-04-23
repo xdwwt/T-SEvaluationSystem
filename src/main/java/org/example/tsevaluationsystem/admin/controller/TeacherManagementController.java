@@ -26,4 +26,20 @@ public class TeacherManagementController {
     public Result insert(@RequestBody TeacherInfo teacherInfo){
         return teacherManagementService.insert(teacherInfo);
     }
+
+    /**
+     * 查询教师列表
+     */
+    @PostMapping("/list")
+    public Result list(@RequestBody TeacherInfo teacherInfo){
+        return teacherManagementService.list(teacherInfo);
+    }
+
+    /**
+     * 重置密码
+     */
+    @PostMapping("/resetPassword")
+    public Result resetPassword(@RequestBody Map<String, String> params){
+        return teacherManagementService.resetPassword(params.get("userId"));
+    }
 }

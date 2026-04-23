@@ -54,4 +54,39 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
 
         return new Result(1, "success", userInfo.getUserId());
     }
+
+    @Override
+    public Result list(TeacherInfo teacherInfo) {
+        QueryWrapper<TeacherInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_dele", 0);
+        if (teacherInfo != null) {
+            if (teacherInfo.getTeacherNo() != null && !teacherInfo.getTeacherNo().isEmpty()) {
+                wrapper.like("teacher_no", teacherInfo.getTeacherNo());
+            }
+            if (teacherInfo.getName() != null && !teacherInfo.getName().isEmpty()) {
+                wrapper.like("name", teacherInfo.getName());
+            }
+            if (teacherInfo.getTitle() != null && !teacherInfo.getTitle().isEmpty()) {
+                wrapper.eq("title", teacherInfo.getTitle());
+            }
+            if (teacherInfo.getDepartment() != null && !teacherInfo.getDepartment().isEmpty()) {
+                wrapper.eq("department", teacherInfo.getDepartment());
+            }
+        }
+        wrapper.orderByDesc("create_time");
+        return new Result(1, "success", teacherManagementMapper.selectList(wrapper));
+    }
+
+    @Override
+    public Result resetPassword(String userId) {
+        QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        UserInfo userInfo = userMapper.selectOne(wrapper);
+        if (userInfo == null) {
+            return new Result(0, "用户不存在", null);
+        }
+        userInfo.setPassword("123456");
+        userMapper.updateById(userInfo);
+        return new Result(1, "success", null);
+    }
 }
