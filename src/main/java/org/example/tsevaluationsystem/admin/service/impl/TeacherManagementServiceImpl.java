@@ -132,4 +132,28 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
 
         return new Result(1, "success", null);
     }
+
+    @Override
+    @Transactional
+    public Result update(TeacherInfo teacherInfo) {
+        // 1. 校验教师是否存在
+        TeacherInfo exist = teacherManagementMapper.selectById(teacherInfo.getId());
+        if (exist == null) {
+            return new Result(0, "教师不存在", null);
+        }
+
+        // 2. 更新教师信息（工号不允许修改）
+        teacherManagementMapper.updateById(teacherInfo);
+
+        // 3. 同步更新用户登录信息中的姓名
+        QueryWrapper<UserInfo> userWrapper = new QueryWrapper<>();
+        userWrapper.eq("user_id", exist.getTeacherNo());
+        UserInfo userInfo = userMapper.selectOne(userWrapper);
+        if (userInfo != null) {
+            userInfo.setUsername(teacherInfo.getName());
+            userMapper.updateById(userInfo);
+        }
+
+        return new Result(1, "success", null);
+    }
 }

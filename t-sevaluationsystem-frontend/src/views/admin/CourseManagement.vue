@@ -1,36 +1,15 @@
 <template>
-  <div class="teacher-page">
+  <div class="course-page">
     <!-- 搜索区 -->
     <div class="search-area">
       <div class="search-row">
         <div class="search-item">
-          <label>工号</label>
-          <input v-model="searchForm.teacherNo" placeholder="请输入工号" />
+          <label>课程编号</label>
+          <input v-model="searchForm.courseCode" placeholder="请输入课程编号" />
         </div>
         <div class="search-item">
-          <label>姓名</label>
-          <input v-model="searchForm.name" placeholder="请输入姓名" />
-        </div>
-        <div class="search-item">
-          <label>职称</label>
-          <select v-model="searchForm.title">
-            <option value="">全部</option>
-            <option value="教授">教授</option>
-            <option value="副教授">副教授</option>
-            <option value="讲师">讲师</option>
-            <option value="助教">助教</option>
-          </select>
-        </div>
-        <div class="search-item">
-          <label>院系</label>
-          <select v-model="searchForm.department">
-            <option value="">全部</option>
-            <option value="计算机学院">计算机学院</option>
-            <option value="数学学院">数学学院</option>
-            <option value="外语学院">外语学院</option>
-            <option value="文学院">文学院</option>
-            <option value="理学院">理学院</option>
-          </select>
+          <label>课程名称</label>
+          <input v-model="searchForm.courseName" placeholder="请输入课程名称" />
         </div>
         <div class="search-btns">
           <button class="btn-search" @click="handleSearch">查询</button>
@@ -51,34 +30,27 @@
         <thead>
           <tr>
             <th>序号</th>
-            <th>工号</th>
-            <th>姓名</th>
-            <th>性别</th>
-            <th>职称</th>
-            <th>院系</th>
-            <th>电话</th>
-            <th>邮箱</th>
+            <th>课程编号</th>
+            <th>课程名称</th>
+            <th>学分</th>
+            <th>描述</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in tableData" :key="item.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.teacherNo }}</td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.gender === 1 ? '男' : '女' }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.department }}</td>
-            <td>{{ item.phone }}</td>
-            <td>{{ item.email }}</td>
+            <td>{{ item.courseCode }}</td>
+            <td>{{ item.courseName }}</td>
+            <td>{{ item.credit }}</td>
+            <td>{{ item.description }}</td>
             <td>
               <button class="btn-edit" @click="handleEditClick(item)">修改</button>
-              <button class="btn-delete" @click="handleDeleteClick(item.teacherNo)">删除</button>
-              <button class="btn-reset" @click="handleResetClick(item.teacherNo)">重置密码</button>
+              <button class="btn-delete" @click="handleDeleteClick(item.id)">删除</button>
             </td>
           </tr>
           <tr v-if="tableData.length === 0">
-            <td colspan="9" class="no-data">暂无数据</td>
+            <td colspan="6" class="no-data">暂无数据</td>
           </tr>
         </tbody>
       </table>
@@ -117,28 +89,11 @@
       @confirm="showSuccess = false"
     />
 
-    <!-- 重置密码确认弹窗 -->
-    <ConfirmDialog
-      v-model:visible="showResetConfirm"
-      title="确认重置"
-      message="是否重置该教师的密码？"
-      @confirm="handleResetConfirm"
-    />
-
-    <!-- 重置密码成功弹窗 -->
-    <ConfirmDialog
-      v-model:visible="showResetSuccess"
-      title="提示"
-      message="密码已重置为 123456"
-      :showCancel="false"
-      @confirm="showResetSuccess = false"
-    />
-
     <!-- 删除确认弹窗 -->
     <ConfirmDialog
       v-model:visible="showDeleteConfirm"
       title="确认删除"
-      message="是否删除该教师？删除后不可恢复。"
+      message="是否删除该课程？删除后不可恢复。"
       @confirm="handleDeleteConfirm"
     />
 
@@ -151,84 +106,43 @@
       @confirm="showDeleteSuccess = false"
     />
 
-    <!-- 新增/编辑教师弹窗 -->
+    <!-- 新增/编辑课程弹窗 -->
     <div class="modal" v-if="showAdd" @click="handleCloseModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ isEdit ? '编辑教师' : '新增教师' }}</h3>
+          <h3>{{ isEdit ? '编辑课程' : '新增课程' }}</h3>
           <span class="close-btn" @click="handleCloseModal">x</span>
         </div>
         <div class="modal-body">
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>工号 <span class="required">*</span></label>
-                <input v-model="form.teacherNo" :disabled="isEdit" placeholder="请输入工号" />
+                <label>课程编号 <span class="required">*</span></label>
+                <input v-model="form.courseCode" :disabled="isEdit" placeholder="请输入课程编号" />
               </div>
             </div>
             <div class="form-col">
               <div class="form-item">
-                <label>姓名 <span class="required">*</span></label>
-                <input v-model="form.name" placeholder="请输入姓名" />
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-item">
-                <label>性别</label>
-                <select v-model="form.gender">
-                  <option :value="null">请选择</option>
-                  <option :value="1">男</option>
-                  <option :value="0">女</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-item">
-                <label>职称</label>
-                <select v-model="form.title">
-                  <option value="">请选择</option>
-                  <option value="教授">教授</option>
-                  <option value="副教授">副教授</option>
-                  <option value="讲师">讲师</option>
-                  <option value="助教">助教</option>
-                </select>
+                <label>课程名称 <span class="required">*</span></label>
+                <input v-model="form.courseName" placeholder="请输入课程名称" />
               </div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>院系</label>
-                <select v-model="form.department">
-                  <option value="">请选择</option>
-                  <option value="计算机学院">计算机学院</option>
-                  <option value="数学学院">数学学院</option>
-                  <option value="外语学院">外语学院</option>
-                  <option value="文学院">文学院</option>
-                  <option value="理学院">理学院</option>
-                </select>
+                <label>学分</label>
+                <input v-model="form.credit" type="number" step="0.1" placeholder="请输入学分" />
               </div>
             </div>
             <div class="form-col">
-              <div class="form-item">
-                <label>电话</label>
-                <input v-model="form.phone" placeholder="请输入电话" />
-              </div>
             </div>
           </div>
           <div class="form-row">
-            <div class="form-col">
+            <div class="form-col" style="flex: 2;">
               <div class="form-item">
-                <label>邮箱</label>
-                <input v-model="form.email" placeholder="请输入邮箱" />
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-item">
-                <label>入职日期</label>
-                <input v-model="form.entryDate" type="date" />
+                <label>课程描述</label>
+                <textarea v-model="form.description" rows="3" placeholder="请输入课程描述"></textarea>
               </div>
             </div>
           </div>
@@ -245,7 +159,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { addTeacherApi, listTeacherApi, resetPasswordApi, deleteTeacherApi, updateTeacherApi } from '@/api/teacher.js'
+import { addCourseApi, listCourseApi, updateCourseApi, deleteCourseApi } from '@/api/course.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -254,13 +168,10 @@ const loading = ref(false)
 const errorMsg = ref('')
 const tableData = ref([])
 const showSuccess = ref(false)
-const showResetConfirm = ref(false)
-const showResetSuccess = ref(false)
-const resetUserId = ref('')
 
 const showDeleteConfirm = ref(false)
 const showDeleteSuccess = ref(false)
-const deleteUserId = ref('')
+const deleteId = ref('')
 
 // 分页
 const pageNum = ref(1)
@@ -269,26 +180,20 @@ const total = ref(0)
 const pages = ref(0)
 
 const searchForm = ref({
-  teacherNo: '',
-  name: '',
-  title: '',
-  department: ''
+  courseCode: '',
+  courseName: ''
 })
 
 const form = ref({
-  teacherNo: '',
-  name: '',
-  gender: null,
-  title: '',
-  department: '',
-  phone: '',
-  email: '',
-  entryDate: ''
+  courseCode: '',
+  courseName: '',
+  credit: '',
+  description: ''
 })
 
 const fetchList = async () => {
   try {
-    const res = await listTeacherApi(searchForm.value, pageNum.value, pageSize.value)
+    const res = await listCourseApi(searchForm.value, pageNum.value, pageSize.value)
     console.log('后端返回:', res)
     if (res.code === 1) {
       tableData.value = res.data.records || []
@@ -309,10 +214,8 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.value = {
-    teacherNo: '',
-    name: '',
-    title: '',
-    department: ''
+    courseCode: '',
+    courseName: ''
   }
   pageNum.value = 1
   fetchList()
@@ -361,32 +264,14 @@ const visiblePages = computed(() => {
   return result
 })
 
-const handleResetClick = (teacherNo) => {
-  resetUserId.value = teacherNo
-  showResetConfirm.value = true
-}
-
-const handleResetConfirm = async () => {
-  try {
-    const res = await resetPasswordApi(resetUserId.value)
-    if (res.code === 1) {
-      showResetSuccess.value = true
-    } else {
-      alert(res.mes || '重置失败')
-    }
-  } catch (error) {
-    alert('请求失败，请稍后重试')
-  }
-}
-
-const handleDeleteClick = (teacherNo) => {
-  deleteUserId.value = teacherNo
+const handleDeleteClick = (id) => {
+  deleteId.value = id
   showDeleteConfirm.value = true
 }
 
 const handleDeleteConfirm = async () => {
   try {
-    const res = await deleteTeacherApi(deleteUserId.value)
+    const res = await deleteCourseApi(deleteId.value)
     if (res.code === 1) {
       showDeleteSuccess.value = true
       fetchList()
@@ -401,14 +286,10 @@ const handleDeleteConfirm = async () => {
 const handleAddClick = () => {
   isEdit.value = false
   form.value = {
-    teacherNo: '',
-    name: '',
-    gender: null,
-    title: '',
-    department: '',
-    phone: '',
-    email: '',
-    entryDate: ''
+    courseCode: '',
+    courseName: '',
+    credit: '',
+    description: ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -418,14 +299,10 @@ const handleEditClick = (item) => {
   isEdit.value = true
   form.value = {
     id: item.id,
-    teacherNo: item.teacherNo,
-    name: item.name,
-    gender: item.gender,
-    title: item.title || '',
-    department: item.department || '',
-    phone: item.phone || '',
-    email: item.email || '',
-    entryDate: item.entryDate || ''
+    courseCode: item.courseCode,
+    courseName: item.courseName,
+    credit: item.credit || '',
+    description: item.description || ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -440,13 +317,13 @@ const handleCloseModal = () => {
 const handleSubmit = async () => {
   errorMsg.value = ''
   if (isEdit.value) {
-    if (!form.value.name) {
-      errorMsg.value = '姓名不能为空'
+    if (!form.value.courseName) {
+      errorMsg.value = '课程名称不能为空'
       return
     }
   } else {
-    if (!form.value.teacherNo || !form.value.name) {
-      errorMsg.value = '工号和姓名不能为空'
+    if (!form.value.courseCode || !form.value.courseName) {
+      errorMsg.value = '课程编号和课程名称不能为空'
       return
     }
   }
@@ -454,20 +331,16 @@ const handleSubmit = async () => {
   loading.value = true
   try {
     const res = isEdit.value
-      ? await updateTeacherApi(form.value)
-      : await addTeacherApi(form.value)
+      ? await updateCourseApi(form.value)
+      : await addCourseApi(form.value)
     if (res.code === 1) {
       showSuccess.value = true
       handleCloseModal()
       form.value = {
-        teacherNo: '',
-        name: '',
-        gender: null,
-        title: '',
-        department: '',
-        phone: '',
-        email: '',
-        entryDate: ''
+        courseCode: '',
+        courseName: '',
+        credit: '',
+        description: ''
       }
       fetchList()
     } else {
@@ -486,7 +359,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.teacher-page {
+.course-page {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 40px);
@@ -677,21 +550,6 @@ onMounted(() => {
   opacity: 0.9;
 }
 
-.btn-reset {
-  padding: 4px 10px;
-  background: #f39c12;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn-reset:active {
-  transform: scale(0.96);
-  opacity: 0.9;
-}
-
 /* 弹窗 */
 .modal {
   position: fixed;
@@ -773,7 +631,8 @@ onMounted(() => {
 }
 
 .form-item input,
-.form-item select {
+.form-item select,
+.form-item textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ddd;
@@ -781,10 +640,13 @@ onMounted(() => {
   font-size: 14px;
   transition: all 0.3s;
   outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
 .form-item input:focus,
-.form-item select:focus {
+.form-item select:focus,
+.form-item textarea:focus {
   border-color: #2c3e50;
   box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
 }

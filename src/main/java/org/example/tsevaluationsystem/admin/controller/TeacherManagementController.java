@@ -52,4 +52,12 @@ public class TeacherManagementController {
     public Result delete(@RequestBody Map<String, String> params){
         return teacherManagementService.delete(params.get("userId"));
     }
+
+    /**
+     * 编辑教师
+     */
+    @PostMapping("/update")
+    public Result update(@RequestBody TeacherInfo teacherInfo){
+        return teacherManagementService.update(teacherInfo);
+    }
 }

@@ -97,10 +97,13 @@ CREATE TABLE IF NOT EXISTS tb_score (
     course_id  BIGINT NOT NULL COMMENT '课程ID',
     teacher_id BIGINT NOT NULL COMMENT '任课教师ID',
     class_id   BIGINT COMMENT '班级ID',
-    semester   VARCHAR(20) COMMENT '学期',
-    score      DECIMAL(5,2) COMMENT '成绩',
-    comment    TEXT COMMENT '评语',
-    is_dele    TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
+    semester     VARCHAR(20) COMMENT '学期',
+    usual_score  DECIMAL(5,2) COMMENT '平时分',
+    final_score  DECIMAL(5,2) COMMENT '期末考试分',
+    score        DECIMAL(5,2) COMMENT '总评成绩',
+    comment      TEXT COMMENT '评语',
+    is_viewable  TINYINT DEFAULT 0 COMMENT '是否可查看 0:不可查看 1:可查看',
+    is_dele      TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) COMMENT='成绩表';
@@ -120,3 +123,9 @@ CREATE TABLE IF NOT EXISTS tb_teacher_evaluation (
     is_dele        TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
     create_time    DATETIME DEFAULT CURRENT_TIMESTAMP
 ) COMMENT='教师评价表';
+
+
+ALTER TABLE tb_score
+    ADD COLUMN usual_score DECIMAL(5,2) COMMENT '平时分',
+    ADD COLUMN final_score DECIMAL(5,2) COMMENT '期末考试分',
+    ADD COLUMN is_viewable TINYINT DEFAULT 0 COMMENT '是否可查看 0:不可查看 1:可查看';

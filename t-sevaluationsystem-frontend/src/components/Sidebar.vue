@@ -9,6 +9,7 @@
       <div class="menu-item" @click="navigate('/admin/student')">学生管理</div>
       <div class="menu-item" @click="navigate('/admin/course')">课程管理</div>
       <div class="menu-item" @click="navigate('/admin/class')">班级管理</div>
+      <div class="menu-item" @click="navigate('/admin/arrangement')">排课管理</div>
     </div>
 
     <!-- 教师菜单 -->

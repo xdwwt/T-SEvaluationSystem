@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/common/LoginView.vue'
 import AdminDashboard from '@/views/admin/AdminDashboard.vue'
 import TeacherManagement from '@/views/admin/TeacherManagement.vue'
+import StudentManagement from '@/views/admin/StudentManagement.vue'
+import ClassManagement from '@/views/admin/ClassManagement.vue'
+import CourseManagement from '@/views/admin/CourseManagement.vue'
+import ArrangementManagement from '@/views/admin/ArrangementManagement.vue'
 import StudentDashboard from '@/views/student/StudentDashboard.vue'
 import TeacherDashboard from '@/views/teacher/TeacherDashboard.vue'
 
@@ -25,6 +29,30 @@ const routes = [
     path: '/admin/teacher',
     name: 'TeacherManagement',
     component: TeacherManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/student',
+    name: 'StudentManagement',
+    component: StudentManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/class',
+    name: 'ClassManagement',
+    component: ClassManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/course',
+    name: 'CourseManagement',
+    component: CourseManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/arrangement',
+    name: 'ArrangementManagement',
+    component: ArrangementManagement,
     meta: { requiresAuth: true, role: 0 }
   },
   {

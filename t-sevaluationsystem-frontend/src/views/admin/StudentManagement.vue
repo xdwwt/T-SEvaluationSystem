@@ -1,35 +1,35 @@
 <template>
-  <div class="teacher-page">
+  <div class="student-page">
     <!-- 搜索区 -->
     <div class="search-area">
       <div class="search-row">
         <div class="search-item">
-          <label>工号</label>
-          <input v-model="searchForm.teacherNo" placeholder="请输入工号" />
+          <label>学号</label>
+          <input v-model="searchForm.studentNo" placeholder="请输入学号" />
         </div>
         <div class="search-item">
           <label>姓名</label>
           <input v-model="searchForm.name" placeholder="请输入姓名" />
         </div>
         <div class="search-item">
-          <label>职称</label>
-          <select v-model="searchForm.title">
+          <label>年级</label>
+          <select v-model="searchForm.grade">
             <option value="">全部</option>
-            <option value="教授">教授</option>
-            <option value="副教授">副教授</option>
-            <option value="讲师">讲师</option>
-            <option value="助教">助教</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
           </select>
         </div>
         <div class="search-item">
-          <label>院系</label>
-          <select v-model="searchForm.department">
+          <label>专业</label>
+          <select v-model="searchForm.major">
             <option value="">全部</option>
-            <option value="计算机学院">计算机学院</option>
-            <option value="数学学院">数学学院</option>
-            <option value="外语学院">外语学院</option>
-            <option value="文学院">文学院</option>
-            <option value="理学院">理学院</option>
+            <option value="计算机科学与技术">计算机科学与技术</option>
+            <option value="软件工程">软件工程</option>
+            <option value="数学与应用数学">数学与应用数学</option>
+            <option value="英语">英语</option>
+            <option value="汉语言文学">汉语言文学</option>
           </select>
         </div>
         <div class="search-btns">
@@ -51,11 +51,11 @@
         <thead>
           <tr>
             <th>序号</th>
-            <th>工号</th>
+            <th>学号</th>
             <th>姓名</th>
             <th>性别</th>
-            <th>职称</th>
-            <th>院系</th>
+            <th>年级</th>
+            <th>专业</th>
             <th>电话</th>
             <th>邮箱</th>
             <th>操作</th>
@@ -64,17 +64,17 @@
         <tbody>
           <tr v-for="(item, index) in tableData" :key="item.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.teacherNo }}</td>
+            <td>{{ item.studentNo }}</td>
             <td>{{ item.name }}</td>
             <td>{{ item.gender === 1 ? '男' : '女' }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.department }}</td>
+            <td>{{ item.grade }}</td>
+            <td>{{ item.major }}</td>
             <td>{{ item.phone }}</td>
             <td>{{ item.email }}</td>
             <td>
               <button class="btn-edit" @click="handleEditClick(item)">修改</button>
-              <button class="btn-delete" @click="handleDeleteClick(item.teacherNo)">删除</button>
-              <button class="btn-reset" @click="handleResetClick(item.teacherNo)">重置密码</button>
+              <button class="btn-delete" @click="handleDeleteClick(item.studentNo)">删除</button>
+              <button class="btn-reset" @click="handleResetClick(item.studentNo)">重置密码</button>
             </td>
           </tr>
           <tr v-if="tableData.length === 0">
@@ -121,7 +121,7 @@
     <ConfirmDialog
       v-model:visible="showResetConfirm"
       title="确认重置"
-      message="是否重置该教师的密码？"
+      message="是否重置该学生的密码？"
       @confirm="handleResetConfirm"
     />
 
@@ -138,7 +138,7 @@
     <ConfirmDialog
       v-model:visible="showDeleteConfirm"
       title="确认删除"
-      message="是否删除该教师？删除后不可恢复。"
+      message="是否删除该学生？删除后不可恢复。"
       @confirm="handleDeleteConfirm"
     />
 
@@ -151,19 +151,19 @@
       @confirm="showDeleteSuccess = false"
     />
 
-    <!-- 新增/编辑教师弹窗 -->
+    <!-- 新增/编辑学生弹窗 -->
     <div class="modal" v-if="showAdd" @click="handleCloseModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ isEdit ? '编辑教师' : '新增教师' }}</h3>
+          <h3>{{ isEdit ? '编辑学生' : '新增学生' }}</h3>
           <span class="close-btn" @click="handleCloseModal">x</span>
         </div>
         <div class="modal-body">
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>工号 <span class="required">*</span></label>
-                <input v-model="form.teacherNo" :disabled="isEdit" placeholder="请输入工号" />
+                <label>学号 <span class="required">*</span></label>
+                <input v-model="form.studentNo" :disabled="isEdit" placeholder="请输入学号" />
               </div>
             </div>
             <div class="form-col">
@@ -186,13 +186,13 @@
             </div>
             <div class="form-col">
               <div class="form-item">
-                <label>职称</label>
-                <select v-model="form.title">
+                <label>年级</label>
+                <select v-model="form.grade">
                   <option value="">请选择</option>
-                  <option value="教授">教授</option>
-                  <option value="副教授">副教授</option>
-                  <option value="讲师">讲师</option>
-                  <option value="助教">助教</option>
+                  <option value="2021">2021</option>
+                  <option value="2022">2022</option>
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
                 </select>
               </div>
             </div>
@@ -200,14 +200,14 @@
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>院系</label>
-                <select v-model="form.department">
+                <label>专业</label>
+                <select v-model="form.major">
                   <option value="">请选择</option>
-                  <option value="计算机学院">计算机学院</option>
-                  <option value="数学学院">数学学院</option>
-                  <option value="外语学院">外语学院</option>
-                  <option value="文学院">文学院</option>
-                  <option value="理学院">理学院</option>
+                  <option value="计算机科学与技术">计算机科学与技术</option>
+                  <option value="软件工程">软件工程</option>
+                  <option value="数学与应用数学">数学与应用数学</option>
+                  <option value="英语">英语</option>
+                  <option value="汉语言文学">汉语言文学</option>
                 </select>
               </div>
             </div>
@@ -226,10 +226,6 @@
               </div>
             </div>
             <div class="form-col">
-              <div class="form-item">
-                <label>入职日期</label>
-                <input v-model="form.entryDate" type="date" />
-              </div>
             </div>
           </div>
           <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
@@ -245,7 +241,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { addTeacherApi, listTeacherApi, resetPasswordApi, deleteTeacherApi, updateTeacherApi } from '@/api/teacher.js'
+import { addStudentApi, listStudentApi, updateStudentApi, deleteStudentApi, resetPasswordApi } from '@/api/student.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -269,26 +265,25 @@ const total = ref(0)
 const pages = ref(0)
 
 const searchForm = ref({
-  teacherNo: '',
+  studentNo: '',
   name: '',
-  title: '',
-  department: ''
+  grade: '',
+  major: ''
 })
 
 const form = ref({
-  teacherNo: '',
+  studentNo: '',
   name: '',
   gender: null,
-  title: '',
-  department: '',
+  grade: '',
+  major: '',
   phone: '',
-  email: '',
-  entryDate: ''
+  email: ''
 })
 
 const fetchList = async () => {
   try {
-    const res = await listTeacherApi(searchForm.value, pageNum.value, pageSize.value)
+    const res = await listStudentApi(searchForm.value, pageNum.value, pageSize.value)
     console.log('后端返回:', res)
     if (res.code === 1) {
       tableData.value = res.data.records || []
@@ -309,10 +304,10 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.value = {
-    teacherNo: '',
+    studentNo: '',
     name: '',
-    title: '',
-    department: ''
+    grade: '',
+    major: ''
   }
   pageNum.value = 1
   fetchList()
@@ -361,8 +356,8 @@ const visiblePages = computed(() => {
   return result
 })
 
-const handleResetClick = (teacherNo) => {
-  resetUserId.value = teacherNo
+const handleResetClick = (studentNo) => {
+  resetUserId.value = studentNo
   showResetConfirm.value = true
 }
 
@@ -379,14 +374,14 @@ const handleResetConfirm = async () => {
   }
 }
 
-const handleDeleteClick = (teacherNo) => {
-  deleteUserId.value = teacherNo
+const handleDeleteClick = (studentNo) => {
+  deleteUserId.value = studentNo
   showDeleteConfirm.value = true
 }
 
 const handleDeleteConfirm = async () => {
   try {
-    const res = await deleteTeacherApi(deleteUserId.value)
+    const res = await deleteStudentApi(deleteUserId.value)
     if (res.code === 1) {
       showDeleteSuccess.value = true
       fetchList()
@@ -401,14 +396,13 @@ const handleDeleteConfirm = async () => {
 const handleAddClick = () => {
   isEdit.value = false
   form.value = {
-    teacherNo: '',
+    studentNo: '',
     name: '',
     gender: null,
-    title: '',
-    department: '',
+    grade: '',
+    major: '',
     phone: '',
-    email: '',
-    entryDate: ''
+    email: ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -418,14 +412,13 @@ const handleEditClick = (item) => {
   isEdit.value = true
   form.value = {
     id: item.id,
-    teacherNo: item.teacherNo,
+    studentNo: item.studentNo,
     name: item.name,
     gender: item.gender,
-    title: item.title || '',
-    department: item.department || '',
+    grade: item.grade || '',
+    major: item.major || '',
     phone: item.phone || '',
-    email: item.email || '',
-    entryDate: item.entryDate || ''
+    email: item.email || ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -445,8 +438,8 @@ const handleSubmit = async () => {
       return
     }
   } else {
-    if (!form.value.teacherNo || !form.value.name) {
-      errorMsg.value = '工号和姓名不能为空'
+    if (!form.value.studentNo || !form.value.name) {
+      errorMsg.value = '学号和姓名不能为空'
       return
     }
   }
@@ -454,20 +447,19 @@ const handleSubmit = async () => {
   loading.value = true
   try {
     const res = isEdit.value
-      ? await updateTeacherApi(form.value)
-      : await addTeacherApi(form.value)
+      ? await updateStudentApi(form.value)
+      : await addStudentApi(form.value)
     if (res.code === 1) {
       showSuccess.value = true
       handleCloseModal()
       form.value = {
-        teacherNo: '',
+        studentNo: '',
         name: '',
         gender: null,
-        title: '',
-        department: '',
+        grade: '',
+        major: '',
         phone: '',
-        email: '',
-        entryDate: ''
+        email: ''
       }
       fetchList()
     } else {
@@ -486,7 +478,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.teacher-page {
+.student-page {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 40px);

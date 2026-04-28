@@ -33,4 +33,11 @@ public interface TeacherManagementService {
      * @return
      */
     Result delete(String userId);
+
+    /**
+     * 编辑教师
+     * @param teacherInfo
+     * @return
+     */
+    Result update(TeacherInfo teacherInfo);
 }

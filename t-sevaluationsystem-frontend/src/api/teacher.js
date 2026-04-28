@@ -15,3 +15,7 @@ export const resetPasswordApi = (userId) => {
 export const deleteTeacherApi = (userId) => {
   return request.post('/admin/teacher/delete', { userId })
 }
+
+export const updateTeacherApi = (data) => {
+  return request.post('/admin/teacher/update', data)
+}
