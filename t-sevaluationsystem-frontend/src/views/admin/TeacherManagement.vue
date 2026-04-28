@@ -73,7 +73,7 @@
             <td>{{ item.email }}</td>
             <td>
               <button class="btn-edit">修改</button>
-              <button class="btn-delete">删除</button>
+              <button class="btn-delete" @click="handleDeleteClick(item.teacherNo)">删除</button>
               <button class="btn-reset" @click="handleResetClick(item.teacherNo)">重置密码</button>
             </td>
           </tr>
@@ -132,6 +132,23 @@
       message="密码已重置为 123456"
       :showCancel="false"
       @confirm="showResetSuccess = false"
+    />
+
+    <!-- 删除确认弹窗 -->
+    <ConfirmDialog
+      v-model:visible="showDeleteConfirm"
+      title="确认删除"
+      message="是否删除该教师？删除后不可恢复。"
+      @confirm="handleDeleteConfirm"
+    />
+
+    <!-- 删除成功弹窗 -->
+    <ConfirmDialog
+      v-model:visible="showDeleteSuccess"
+      title="提示"
+      message="删除成功"
+      :showCancel="false"
+      @confirm="showDeleteSuccess = false"
     />
 
     <!-- 新增教师弹窗 -->
@@ -228,7 +245,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { addTeacherApi, listTeacherApi, resetPasswordApi } from '@/api/teacher.js'
+import { addTeacherApi, listTeacherApi, resetPasswordApi, deleteTeacherApi } from '@/api/teacher.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -239,6 +256,10 @@ const showSuccess = ref(false)
 const showResetConfirm = ref(false)
 const showResetSuccess = ref(false)
 const resetUserId = ref('')
+
+const showDeleteConfirm = ref(false)
+const showDeleteSuccess = ref(false)
+const deleteUserId = ref('')
 
 // 分页
 const pageNum = ref(1)
@@ -351,6 +372,25 @@ const handleResetConfirm = async () => {
       showResetSuccess.value = true
     } else {
       alert(res.mes || '重置失败')
+    }
+  } catch (error) {
+    alert('请求失败，请稍后重试')
+  }
+}
+
+const handleDeleteClick = (teacherNo) => {
+  deleteUserId.value = teacherNo
+  showDeleteConfirm.value = true
+}
+
+const handleDeleteConfirm = async () => {
+  try {
+    const res = await deleteTeacherApi(deleteUserId.value)
+    if (res.code === 1) {
+      showDeleteSuccess.value = true
+      fetchList()
+    } else {
+      alert(res.mes || '删除失败')
     }
   } catch (error) {
     alert('请求失败，请稍后重试')

@@ -26,4 +26,11 @@ public interface TeacherManagementService {
      * @return
      */
     Result resetPassword(String userId);
+
+    /**
+     * 删除教师（逻辑删除）
+     * @param userId
+     * @return
+     */
+    Result delete(String userId);
 }

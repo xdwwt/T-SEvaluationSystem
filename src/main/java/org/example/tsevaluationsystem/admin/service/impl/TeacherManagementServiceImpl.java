@@ -106,4 +106,30 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         userMapper.updateById(userInfo);
         return new Result(1, "success", null);
     }
+
+    @Override
+    @Transactional
+    public Result delete(String userId) {
+        // 1. 逻辑删除用户登录信息
+        QueryWrapper<UserInfo> userWrapper = new QueryWrapper<>();
+        userWrapper.eq("user_id", userId);
+        UserInfo userInfo = userMapper.selectOne(userWrapper);
+        if (userInfo == null) {
+            return new Result(0, "用户不存在", null);
+        }
+        userInfo.setIsDele(1);
+        userMapper.updateById(userInfo);
+
+        // 2. 逻辑删除教师信息
+        QueryWrapper<TeacherInfo> teacherWrapper = new QueryWrapper<>();
+        teacherWrapper.eq("teacher_no", userId);
+        TeacherInfo teacherInfo = teacherManagementMapper.selectOne(teacherWrapper);
+        if (teacherInfo == null) {
+            return new Result(0, "教师不存在", null);
+        }
+        teacherInfo.setIsDele(1);
+        teacherManagementMapper.updateById(teacherInfo);
+
+        return new Result(1, "success", null);
+    }
 }

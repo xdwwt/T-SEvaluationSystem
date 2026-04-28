@@ -44,4 +44,12 @@ public class TeacherManagementController {
     public Result resetPassword(@RequestBody Map<String, String> params){
         return teacherManagementService.resetPassword(params.get("userId"));
     }
+
+    /**
+     * 删除教师（逻辑删除）
+     */
+    @PostMapping("/delete")
+    public Result delete(@RequestBody Map<String, String> params){
+        return teacherManagementService.delete(params.get("userId"));
+    }
 }
