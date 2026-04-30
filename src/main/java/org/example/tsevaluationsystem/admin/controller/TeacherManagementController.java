@@ -60,4 +60,9 @@ public class TeacherManagementController {
     public Result update(@RequestBody TeacherInfo teacherInfo){
         return teacherManagementService.update(teacherInfo);
     }
+
+    @PostMapping("/all")
+    public Result all(){
+        return teacherManagementService.listAll();
+    }
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,11 +13,16 @@ import java.time.LocalDateTime;
 @TableName("tb_score")
 public class Score {
     @TableId(type = IdType.ASSIGN_ID)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long studentId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long courseId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long teacherId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long classId;
     private String semester;
     private BigDecimal usualScore;

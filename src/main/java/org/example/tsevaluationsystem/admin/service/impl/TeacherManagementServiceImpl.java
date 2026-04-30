@@ -95,6 +95,15 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
     }
 
     @Override
+    public Result listAll() {
+        QueryWrapper<TeacherInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_dele", 0);
+        wrapper.orderByAsc("name");
+        List<TeacherInfo> list = teacherManagementMapper.selectList(wrapper);
+        return new Result(1, "success", list);
+    }
+
+    @Override
     public Result resetPassword(String userId) {
         QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);

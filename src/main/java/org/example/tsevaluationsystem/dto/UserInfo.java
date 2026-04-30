@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 @Data
 @TableName("tb_user_info")
 public class UserInfo {
     @TableId(type = IdType.ASSIGN_ID)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     private String userId;
@@ -29,6 +31,7 @@ public class UserInfo {
      * 关联教师/学生表ID
      * 管理员为null
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long infoId;
 
     /**

@@ -107,7 +107,7 @@
     <ConfirmDialog
       v-model:visible="showSuccess"
       title="提示"
-      :message="isEdit ? '修改成功' : '新增成功'"
+      :message="successMsg"
       :showCancel="false"
       @confirm="showSuccess = false"
     />
@@ -194,6 +194,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { addArrangementApi, listArrangementApi, updateArrangementApi, deleteArrangementApi } from '@/api/arrangement.js'
+import { allTeacherApi } from '@/api/teacher.js'
+import { allClassApi } from '@/api/class.js'
+import { allCourseApi } from '@/api/course.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -206,6 +209,7 @@ const showSuccess = ref(false)
 const showDeleteConfirm = ref(false)
 const showDeleteSuccess = ref(false)
 const deleteId = ref('')
+const successMsg = ref('')
 
 // 分页
 const pageNum = ref(1)
@@ -229,24 +233,24 @@ const form = ref({
   semester: ''
 })
 
-// TODO: 后端联调时替换为接口数据
-const classOptions = ref([
-  { id: 1, className: '计算机1班' },
-  { id: 2, className: '计算机2班' },
-  { id: 3, className: '软件工程1班' }
-])
+const classOptions = ref([])
+const teacherOptions = ref([])
+const courseOptions = ref([])
 
-const teacherOptions = ref([
-  { id: 1, name: '张三' },
-  { id: 2, name: '李四' },
-  { id: 3, name: '王五' }
-])
-
-const courseOptions = ref([
-  { id: 1, courseName: 'Java程序设计' },
-  { id: 2, courseName: '数据结构' },
-  { id: 3, courseName: '数据库原理' }
-])
+const fetchOptions = async () => {
+  try {
+    const [teacherRes, classRes, courseRes] = await Promise.all([
+      allTeacherApi(),
+      allClassApi(),
+      allCourseApi()
+    ])
+    if (teacherRes.code === 1) teacherOptions.value = teacherRes.data || []
+    if (classRes.code === 1) classOptions.value = classRes.data || []
+    if (courseRes.code === 1) courseOptions.value = courseRes.data || []
+  } catch (error) {
+    console.error('获取下拉选项失败', error)
+  }
+}
 
 const fetchList = async () => {
   try {
@@ -386,6 +390,7 @@ const handleSubmit = async () => {
       ? await updateArrangementApi(form.value)
       : await addArrangementApi(form.value)
     if (res.code === 1) {
+      successMsg.value = isEdit.value ? '修改成功' : '新增成功'
       showSuccess.value = true
       handleCloseModal()
       form.value = {
@@ -407,6 +412,7 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   fetchList()
+  fetchOptions()
 })
 </script>
 

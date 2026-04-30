@@ -1,30 +1,30 @@
 <template>
   <div class="sidebar" v-if="userStore.token && route.path !== '/login'">
-    <div class="logo">教学评价系统</div>
+    <div class="logo">师生互评系统</div>
 
     <!-- 管理员菜单 -->
     <div class="menu-group" v-if="userStore.isAdmin()">
-      <div class="menu-item" @click="navigate('/admin')">首页</div>
-      <div class="menu-item" @click="navigate('/admin/teacher')">教师管理</div>
-      <div class="menu-item" @click="navigate('/admin/student')">学生管理</div>
-      <div class="menu-item" @click="navigate('/admin/course')">课程管理</div>
-      <div class="menu-item" @click="navigate('/admin/class')">班级管理</div>
-      <div class="menu-item" @click="navigate('/admin/arrangement')">排课管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin' }" @click="navigate('/admin')">首页</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/teacher' }" @click="navigate('/admin/teacher')">教师管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/student' }" @click="navigate('/admin/student')">学生管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/course' }" @click="navigate('/admin/course')">课程管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/class' }" @click="navigate('/admin/class')">班级管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/arrangement' }" @click="navigate('/admin/arrangement')">排课管理</div>
     </div>
 
     <!-- 教师菜单 -->
     <div class="menu-group" v-if="userStore.isTeacher()">
-      <div class="menu-item" @click="navigate('/teacher')">首页</div>
-      <div class="menu-item" @click="navigate('/teacher/score')">学生成绩</div>
-      <div class="menu-item" @click="navigate('/teacher/evaluation')">我的评分</div>
-      <div class="menu-item" @click="navigate('/teacher/info')">个人信息</div>
+      <div class="menu-item" :class="{ active: route.path === '/teacher' }" @click="navigate('/teacher')">首页</div>
+      <div class="menu-item" :class="{ active: route.path === '/teacher/score' }" @click="navigate('/teacher/score')">学生成绩</div>
+      <div class="menu-item" :class="{ active: route.path === '/teacher/evaluation' }" @click="navigate('/teacher/evaluation')">我的评分</div>
+      <div class="menu-item" :class="{ active: route.path === '/teacher/info' }" @click="navigate('/teacher/info')">个人信息</div>
     </div>
 
     <!-- 学生菜单 -->
     <div class="menu-group" v-if="userStore.isStudent()">
-      <div class="menu-item" @click="navigate('/student')">首页</div>
-      <div class="menu-item" @click="navigate('/student/evaluation')">教师评价</div>
-      <div class="menu-item" @click="navigate('/student/score')">我的成绩</div>
+      <div class="menu-item" :class="{ active: route.path === '/student' }" @click="navigate('/student')">首页</div>
+      <div class="menu-item" :class="{ active: route.path === '/student/evaluation' }" @click="navigate('/student/evaluation')">教师评价</div>
+      <div class="menu-item" :class="{ active: route.path === '/student/score' }" @click="navigate('/student/score')">我的成绩</div>
     </div>
 
     <div class="logout" @click="showLogoutDialog = true">退出登录</div>
@@ -91,6 +91,13 @@ const handleLogout = () => {
 
 .menu-item:hover {
   background: rgba(255,255,255,0.1);
+}
+
+.menu-item.active {
+  background: rgba(255,255,255,0.15);
+  box-shadow: inset 4px 0 0 #3498db;
+  color: #fff;
+  font-weight: 500;
 }
 
 .logout {

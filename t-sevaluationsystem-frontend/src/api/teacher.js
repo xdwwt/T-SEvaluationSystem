@@ -19,3 +19,7 @@ export const deleteTeacherApi = (userId) => {
 export const updateTeacherApi = (data) => {
   return request.post('/admin/teacher/update', data)
 }
+
+export const allTeacherApi = () => {
+  return request.post('/admin/teacher/all')
+}

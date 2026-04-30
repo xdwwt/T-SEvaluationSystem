@@ -37,4 +37,9 @@ public class CourseManagementController {
     public Result delete(@RequestBody Map<String, Long> params) {
         return courseManagementService.delete(params.get("id"));
     }
+
+    @PostMapping("/all")
+    public Result all() {
+        return courseManagementService.listAll();
+    }
 }

@@ -10,4 +10,12 @@ public interface ClassManagementService {
     Result list(Map<String, Object> params);
     Result update(ClassInfo classInfo);
     Result delete(Long id);
+
+    Result listAll();
+
+    // 班级学生管理
+    Result listClassStudents(Long classId);
+    Result listUnassignedStudents();
+    Result addStudentToClass(Long classId, Long studentId);
+    Result removeStudentFromClass(Long id);
 }

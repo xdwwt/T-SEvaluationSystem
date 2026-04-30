@@ -5,24 +5,47 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.example.tsevaluationsystem.admin.mapper.ArrangementManagementMapper;
+import org.example.tsevaluationsystem.admin.mapper.ClassManagementMapper;
+import org.example.tsevaluationsystem.admin.mapper.CourseManagementMapper;
+import org.example.tsevaluationsystem.admin.mapper.TeacherManagementMapper;
 import org.example.tsevaluationsystem.admin.service.ArrangementManagementService;
+import org.example.tsevaluationsystem.dto.ClassInfo;
 import org.example.tsevaluationsystem.dto.ClassTeacher;
+import org.example.tsevaluationsystem.dto.Course;
 import org.example.tsevaluationsystem.dto.Result;
+import org.example.tsevaluationsystem.dto.TeacherInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ArrangementManagementServiceImpl implements ArrangementManagementService {
 
     @Autowired
     private ArrangementManagementMapper arrangementManagementMapper;
+    @Autowired
+    private ClassManagementMapper classManagementMapper;
+    @Autowired
+    private TeacherManagementMapper teacherManagementMapper;
+    @Autowired
+    private CourseManagementMapper courseManagementMapper;
 
     @Override
     public Result insert(ClassTeacher classTeacher) {
+        QueryWrapper<ClassTeacher> wrapper = new QueryWrapper<>();
+        wrapper.eq("class_id", classTeacher.getClassId())
+               .eq("teacher_id", classTeacher.getTeacherId())
+               .eq("course_id", classTeacher.getCourseId())
+               .eq("semester", classTeacher.getSemester())
+               .eq("is_dele", 0);
+        if (arrangementManagementMapper.selectCount(wrapper) > 0) {
+            return new Result(0, "该排课记录已存在", null);
+        }
+
         classTeacher.setId(IdWorker.getId());
         arrangementManagementMapper.insert(classTeacher);
         return new Result(1, "success", null);
@@ -53,6 +76,26 @@ public class ArrangementManagementServiceImpl implements ArrangementManagementSe
         PageHelper.startPage(pageNum, pageSize);
         List<ClassTeacher> list = arrangementManagementMapper.selectList(wrapper);
         PageInfo<ClassTeacher> pageInfo = new PageInfo<>(list);
+
+        // 填充名称
+        if (!list.isEmpty()) {
+            List<Long> classIds = list.stream().map(ClassTeacher::getClassId).distinct().collect(Collectors.toList());
+            List<Long> teacherIds = list.stream().map(ClassTeacher::getTeacherId).distinct().collect(Collectors.toList());
+            List<Long> courseIds = list.stream().map(ClassTeacher::getCourseId).distinct().collect(Collectors.toList());
+
+            Map<Long, String> classNameMap = classManagementMapper.selectBatchIds(classIds)
+                    .stream().collect(Collectors.toMap(ClassInfo::getId, ClassInfo::getClassName));
+            Map<Long, String> teacherNameMap = teacherManagementMapper.selectBatchIds(teacherIds)
+                    .stream().collect(Collectors.toMap(TeacherInfo::getId, TeacherInfo::getName));
+            Map<Long, String> courseNameMap = courseManagementMapper.selectBatchIds(courseIds)
+                    .stream().collect(Collectors.toMap(Course::getId, Course::getCourseName));
+
+            for (ClassTeacher ct : list) {
+                ct.setClassName(classNameMap.getOrDefault(ct.getClassId(), ""));
+                ct.setTeacherName(teacherNameMap.getOrDefault(ct.getTeacherId(), ""));
+                ct.setCourseName(courseNameMap.getOrDefault(ct.getCourseId(), ""));
+            }
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("records", pageInfo.getList());

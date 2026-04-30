@@ -10,4 +10,6 @@ public interface CourseManagementService {
     Result list(Map<String, Object> params);
     Result update(Course course);
     Result delete(Long id);
+
+    Result listAll();
 }

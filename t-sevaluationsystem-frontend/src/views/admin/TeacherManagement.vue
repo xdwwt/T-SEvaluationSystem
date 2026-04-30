@@ -112,7 +112,7 @@
     <ConfirmDialog
       v-model:visible="showSuccess"
       title="提示"
-      :message="isEdit ? '修改成功' : '新增成功'"
+      :message="successMsg"
       :showCancel="false"
       @confirm="showSuccess = false"
     />
@@ -261,6 +261,7 @@ const resetUserId = ref('')
 const showDeleteConfirm = ref(false)
 const showDeleteSuccess = ref(false)
 const deleteUserId = ref('')
+const successMsg = ref('')
 
 // 分页
 const pageNum = ref(1)
@@ -457,6 +458,7 @@ const handleSubmit = async () => {
       ? await updateTeacherApi(form.value)
       : await addTeacherApi(form.value)
     if (res.code === 1) {
+      successMsg.value = isEdit.value ? '修改成功' : '新增成功'
       showSuccess.value = true
       handleCloseModal()
       form.value = {

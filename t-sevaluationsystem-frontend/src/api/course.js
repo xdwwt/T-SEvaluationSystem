@@ -12,6 +12,10 @@ export const updateCourseApi = (data) => {
   return request.post('/admin/course/update', data)
 }
 
+export const allCourseApi = () => {
+  return request.post('/admin/course/all')
+}
+
 export const deleteCourseApi = (id) => {
   return request.post('/admin/course/delete', { id })
 }

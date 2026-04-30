@@ -62,6 +62,7 @@
             <td>
               <button class="btn-edit" @click="handleEditClick(item)">修改</button>
               <button class="btn-delete" @click="handleDeleteClick(item.id)">删除</button>
+              <button class="btn-manage" @click="handleManageStudents(item)">管理学生</button>
             </td>
           </tr>
           <tr v-if="tableData.length === 0">
@@ -99,7 +100,7 @@
     <ConfirmDialog
       v-model:visible="showSuccess"
       title="提示"
-      :message="isEdit ? '修改成功' : '新增成功'"
+      :message="successMsg"
       :showCancel="false"
       @confirm="showSuccess = false"
     />
@@ -173,12 +174,77 @@
         </div>
       </div>
     </div>
+
+    <!-- 班级学生管理弹窗 -->
+    <div class="modal" v-if="showStudentManage" @click="showStudentManage = false">
+      <div class="modal-content student-manage-modal" @click.stop>
+        <div class="modal-header">
+          <h3>管理班级学生 - {{ currentClass.className }}</h3>
+          <span class="close-btn" @click="showStudentManage = false">x</span>
+        </div>
+        <div class="modal-body">
+          <!-- 已分配学生 -->
+          <div class="student-section">
+            <h4>已分配学生（{{ classStudents.length }}人）</h4>
+            <div class="student-table-wrapper">
+              <table class="student-table">
+                <thead>
+                  <tr>
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>年级</th>
+                    <th>专业</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="student in classStudents" :key="student.id">
+                    <td>{{ student.studentNo }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.gender === 1 ? '男' : '女' }}</td>
+                    <td>{{ student.grade }}</td>
+                    <td>{{ student.major }}</td>
+                    <td>
+                      <button class="btn-remove" @click="handleRemoveStudent(student.id)">移除</button>
+                    </td>
+                  </tr>
+                  <tr v-if="classStudents.length === 0">
+                    <td colspan="6" class="no-data">暂无学生</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 添加学生 -->
+          <div class="student-section add-section">
+            <h4>添加学生</h4>
+            <div class="add-student-row">
+              <select v-model="selectedStudentId">
+                <option value="">请选择学生</option>
+                <option v-for="s in unassignedStudents" :key="s.id" :value="s.id">
+                  {{ s.studentNo }} - {{ s.name }}
+                </option>
+              </select>
+              <button class="btn-confirm" @click="handleAddStudent" :disabled="!selectedStudentId">添加</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { addClassApi, listClassApi, updateClassApi, deleteClassApi } from '@/api/class.js'
+import {
+  listClassStudentsApi,
+  listUnassignedStudentsApi,
+  addStudentToClassApi,
+  removeStudentFromClassApi
+} from '@/api/classStudent.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -191,6 +257,14 @@ const showSuccess = ref(false)
 const showDeleteConfirm = ref(false)
 const showDeleteSuccess = ref(false)
 const deleteId = ref('')
+const successMsg = ref('')
+
+// 班级学生管理
+const showStudentManage = ref(false)
+const currentClass = ref({})
+const classStudents = ref([])
+const unassignedStudents = ref([])
+const selectedStudentId = ref('')
 
 // 分页
 const pageNum = ref(1)
@@ -345,6 +419,7 @@ const handleSubmit = async () => {
       ? await updateClassApi(form.value)
       : await addClassApi(form.value)
     if (res.code === 1) {
+      successMsg.value = isEdit.value ? '修改成功' : '新增成功'
       showSuccess.value = true
       handleCloseModal()
       form.value = {
@@ -360,6 +435,68 @@ const handleSubmit = async () => {
     errorMsg.value = '请求失败，请稍后重试'
   } finally {
     loading.value = false
+  }
+}
+
+const handleManageStudents = (item) => {
+  currentClass.value = item
+  showStudentManage.value = true
+  fetchClassStudents()
+  fetchUnassignedStudents()
+}
+
+const fetchClassStudents = async () => {
+  try {
+    const res = await listClassStudentsApi(currentClass.value.id)
+    if (res.code === 1) {
+      classStudents.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取班级学生失败', error)
+  }
+}
+
+const fetchUnassignedStudents = async () => {
+  try {
+    const res = await listUnassignedStudentsApi()
+    if (res.code === 1) {
+      unassignedStudents.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取未分配学生失败', error)
+  }
+}
+
+const handleAddStudent = async () => {
+  if (!selectedStudentId.value) {
+    alert('请选择学生')
+    return
+  }
+  try {
+    const res = await addStudentToClassApi(currentClass.value.id, selectedStudentId.value)
+    if (res.code === 1) {
+      selectedStudentId.value = ''
+      fetchClassStudents()
+      fetchUnassignedStudents()
+    } else {
+      alert(res.mes || '添加失败')
+    }
+  } catch (error) {
+    alert('请求失败，请稍后重试')
+  }
+}
+
+const handleRemoveStudent = async (id) => {
+  try {
+    const res = await removeStudentFromClassApi(id)
+    if (res.code === 1) {
+      fetchClassStudents()
+      fetchUnassignedStudents()
+    } else {
+      alert(res.mes || '移除失败')
+    }
+  } catch (error) {
+    alert('请求失败，请稍后重试')
   }
 }
 
@@ -792,5 +929,113 @@ onMounted(() => {
 .jump-btn:active {
   transform: scale(0.96);
   opacity: 0.9;
+}
+
+/* 管理学生按钮 */
+.btn-manage {
+  padding: 4px 10px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-manage:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+/* 学生管理弹窗 */
+.student-manage-modal {
+  width: 800px;
+}
+
+.student-section {
+  margin-bottom: 20px;
+}
+
+.student-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.student-table-wrapper {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.student-table th {
+  background: #f8f9fa;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+.student-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  color: #666;
+}
+
+.student-table tr:hover {
+  background: #f8f9fa;
+}
+
+.btn-remove {
+  padding: 4px 10px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-remove:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.add-section {
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.add-student-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.add-student-row select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.add-student-row select:focus {
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+}
+
+.add-student-row .btn-confirm {
+  padding: 10px 24px;
 }
 </style>

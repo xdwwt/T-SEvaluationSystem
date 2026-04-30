@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.example.tsevaluationsystem.admin.mapper.ClassManagementMapper;
+import org.example.tsevaluationsystem.admin.mapper.ClassStudentMapper;
 import org.example.tsevaluationsystem.admin.service.ClassManagementService;
 import org.example.tsevaluationsystem.dto.ClassInfo;
+import org.example.tsevaluationsystem.dto.ClassStudent;
 import org.example.tsevaluationsystem.dto.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +23,8 @@ public class ClassManagementServiceImpl implements ClassManagementService {
 
     @Autowired
     private ClassManagementMapper classManagementMapper;
+    @Autowired
+    private ClassStudentMapper classStudentMapper;
 
     @Override
     public Result insert(ClassInfo classInfo) {
@@ -65,6 +70,15 @@ public class ClassManagementServiceImpl implements ClassManagementService {
     }
 
     @Override
+    public Result listAll() {
+        QueryWrapper<ClassInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_dele", 0);
+        wrapper.orderByAsc("class_name");
+        List<ClassInfo> list = classManagementMapper.selectList(wrapper);
+        return new Result(1, "success", list);
+    }
+
+    @Override
     public Result delete(Long id) {
         ClassInfo classInfo = classManagementMapper.selectById(id);
         if (classInfo == null) {
@@ -72,6 +86,53 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         }
         classInfo.setIsDele(1);
         classManagementMapper.updateById(classInfo);
+        return new Result(1, "success", null);
+    }
+
+    @Override
+    public Result listClassStudents(Long classId) {
+        List<Map<String, Object>> list = classStudentMapper.selectStudentsByClassId(classId);
+        return new Result(1, "success", list);
+    }
+
+    @Override
+    public Result listUnassignedStudents() {
+        List<Map<String, Object>> list = classStudentMapper.selectUnassignedStudents();
+        return new Result(1, "success", list);
+    }
+
+    @Override
+    @Transactional
+    public Result addStudentToClass(Long classId, Long studentId) {
+        QueryWrapper<ClassStudent> wrapper = new QueryWrapper<>();
+        wrapper.eq("class_id", classId);
+        wrapper.eq("student_id", studentId);
+        ClassStudent exist = classStudentMapper.selectOne(wrapper);
+        if (exist != null) {
+            if (exist.getIsDele() == 0) {
+                return new Result(0, "该学生已在此班级中", null);
+            }
+            exist.setIsDele(0);
+            classStudentMapper.updateById(exist);
+            return new Result(1, "success", null);
+        }
+        ClassStudent cs = new ClassStudent();
+        cs.setId(IdWorker.getId());
+        cs.setClassId(classId);
+        cs.setStudentId(studentId);
+        cs.setIsDele(0);
+        classStudentMapper.insert(cs);
+        return new Result(1, "success", null);
+    }
+
+    @Override
+    public Result removeStudentFromClass(Long id) {
+        ClassStudent cs = classStudentMapper.selectById(id);
+        if (cs == null) {
+            return new Result(0, "记录不存在", null);
+        }
+        cs.setIsDele(1);
+        classStudentMapper.updateById(cs);
         return new Result(1, "success", null);
     }
 }

@@ -12,6 +12,10 @@ export const updateClassApi = (data) => {
   return request.post('/admin/class/update', data)
 }
 
+export const allClassApi = () => {
+  return request.post('/admin/class/all')
+}
+
 export const deleteClassApi = (id) => {
   return request.post('/admin/class/delete', { id })
 }

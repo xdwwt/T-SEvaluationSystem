@@ -3,7 +3,7 @@
     <div class="login-box">
       <div class="login-header">
         <div class="logo-icon">📚</div>
-        <h2>教学评价系统</h2>
+        <h2>师生互评系统</h2>
         <p>Teaching Evaluation System</p>
       </div>
       <div class="login-form">

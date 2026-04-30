@@ -40,4 +40,6 @@ public interface TeacherManagementService {
      * @return
      */
     Result update(TeacherInfo teacherInfo);
+
+    Result listAll();
 }

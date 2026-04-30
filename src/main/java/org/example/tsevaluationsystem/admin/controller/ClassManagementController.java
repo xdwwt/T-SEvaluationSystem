@@ -37,4 +37,29 @@ public class ClassManagementController {
     public Result delete(@RequestBody Map<String, Long> params) {
         return classManagementService.delete(params.get("id"));
     }
+
+    @PostMapping("/all")
+    public Result all() {
+        return classManagementService.listAll();
+    }
+
+    @PostMapping("/student/list")
+    public Result listClassStudents(@RequestBody Map<String, Long> params) {
+        return classManagementService.listClassStudents(params.get("classId"));
+    }
+
+    @PostMapping("/student/unassigned")
+    public Result listUnassignedStudents() {
+        return classManagementService.listUnassignedStudents();
+    }
+
+    @PostMapping("/student/add")
+    public Result addStudentToClass(@RequestBody Map<String, Long> params) {
+        return classManagementService.addStudentToClass(params.get("classId"), params.get("studentId"));
+    }
+
+    @PostMapping("/student/remove")
+    public Result removeStudentFromClass(@RequestBody Map<String, Long> params) {
+        return classManagementService.removeStudentFromClass(params.get("id"));
+    }
 }

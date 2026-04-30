@@ -62,6 +62,15 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     }
 
     @Override
+    public Result listAll() {
+        QueryWrapper<Course> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_dele", 0);
+        wrapper.orderByAsc("course_name");
+        List<Course> list = courseManagementMapper.selectList(wrapper);
+        return new Result(1, "success", list);
+    }
+
+    @Override
     public Result delete(Long id) {
         Course course = courseManagementMapper.selectById(id);
         if (course == null) {
