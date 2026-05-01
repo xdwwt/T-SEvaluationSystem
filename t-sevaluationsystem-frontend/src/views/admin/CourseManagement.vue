@@ -5,11 +5,11 @@
       <div class="search-row">
         <div class="search-item">
           <label>课程编号</label>
-          <input v-model="searchForm.courseCode" placeholder="请输入课程编号" />
+          <input v-model="searchForm.courseCode" placeholder="请输入课程编号" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>课程名称</label>
-          <input v-model="searchForm.courseName" placeholder="请输入课程名称" />
+          <input v-model="searchForm.courseName" placeholder="请输入课程名称" @keyup.enter="handleSearch" />
         </div>
         <div class="search-btns">
           <button class="btn-search" @click="handleSearch">查询</button>
@@ -131,7 +131,7 @@
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>学分</label>
+                <label>学分 <span class="required">*</span></label>
                 <input v-model="form.credit" type="number" step="0.1" placeholder="请输入学分" />
               </div>
             </div>
@@ -317,16 +317,17 @@ const handleCloseModal = () => {
 
 const handleSubmit = async () => {
   errorMsg.value = ''
-  if (isEdit.value) {
-    if (!form.value.courseName) {
-      errorMsg.value = '课程名称不能为空'
-      return
-    }
-  } else {
-    if (!form.value.courseCode || !form.value.courseName) {
-      errorMsg.value = '课程编号和课程名称不能为空'
-      return
-    }
+  if (!form.value.courseName) {
+    errorMsg.value = '课程名称不能为空'
+    return
+  }
+  if (!isEdit.value && !form.value.courseCode) {
+    errorMsg.value = '课程编号不能为空'
+    return
+  }
+  if (!form.value.credit) {
+    errorMsg.value = '学分不能为空'
+    return
   }
 
   loading.value = true

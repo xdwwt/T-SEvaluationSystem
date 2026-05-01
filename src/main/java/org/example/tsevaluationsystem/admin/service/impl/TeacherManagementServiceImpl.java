@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.example.tsevaluationsystem.admin.mapper.DepartmentManagementMapper;
 import org.example.tsevaluationsystem.admin.mapper.TeacherManagementMapper;
 import org.example.tsevaluationsystem.admin.mapper.UserMapper;
 import org.example.tsevaluationsystem.admin.service.TeacherManagementService;
+import org.example.tsevaluationsystem.dto.Department;
 import org.example.tsevaluationsystem.dto.Result;
 import org.example.tsevaluationsystem.dto.TeacherInfo;
 import org.example.tsevaluationsystem.dto.UserInfo;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TeacherManagementServiceImpl implements TeacherManagementService {
@@ -25,6 +28,8 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
     private TeacherManagementMapper teacherManagementMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private DepartmentManagementMapper departmentManagementMapper;
 
     @Override
     @Transactional
@@ -75,11 +80,20 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         if (params.get("name") != null && !params.get("name").toString().isEmpty()) {
             wrapper.like("name", params.get("name").toString());
         }
-        if (params.get("title") != null && !params.get("title").toString().isEmpty()) {
-            wrapper.eq("title", params.get("title").toString());
+        if (params.get("titleId") != null && !params.get("titleId").toString().isEmpty()) {
+            wrapper.eq("title_id", params.get("titleId").toString());
         }
-        if (params.get("department") != null && !params.get("department").toString().isEmpty()) {
-            wrapper.eq("department", params.get("department").toString());
+        if (params.get("deptName") != null && !params.get("deptName").toString().isEmpty()) {
+            QueryWrapper<Department> deptWrapper = new QueryWrapper<>();
+            deptWrapper.like("dept_name", params.get("deptName").toString());
+            deptWrapper.eq("is_dele", 0);
+            List<Department> deptList = departmentManagementMapper.selectList(deptWrapper);
+            List<Long> deptIds = deptList.stream().map(Department::getId).collect(Collectors.toList());
+            if (!deptIds.isEmpty()) {
+                wrapper.in("department_id", deptIds);
+            } else {
+                wrapper.eq("department_id", -1L);
+            }
         }
 
         wrapper.orderByDesc("create_time");

@@ -6,9 +6,13 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.example.tsevaluationsystem.admin.mapper.ClassManagementMapper;
 import org.example.tsevaluationsystem.admin.mapper.ClassStudentMapper;
+import org.example.tsevaluationsystem.admin.mapper.DepartmentManagementMapper;
+import org.example.tsevaluationsystem.admin.mapper.MajorManagementMapper;
 import org.example.tsevaluationsystem.admin.service.ClassManagementService;
 import org.example.tsevaluationsystem.dto.ClassInfo;
 import org.example.tsevaluationsystem.dto.ClassStudent;
+import org.example.tsevaluationsystem.dto.Department;
+import org.example.tsevaluationsystem.dto.Major;
 import org.example.tsevaluationsystem.dto.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassManagementServiceImpl implements ClassManagementService {
@@ -25,6 +30,10 @@ public class ClassManagementServiceImpl implements ClassManagementService {
     private ClassManagementMapper classManagementMapper;
     @Autowired
     private ClassStudentMapper classStudentMapper;
+    @Autowired
+    private MajorManagementMapper majorManagementMapper;
+    @Autowired
+    private DepartmentManagementMapper departmentManagementMapper;
 
     @Override
     public Result insert(ClassInfo classInfo) {
@@ -47,8 +56,38 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         if (params.get("grade") != null && !params.get("grade").toString().isEmpty()) {
             wrapper.eq("grade", params.get("grade").toString());
         }
-        if (params.get("major") != null && !params.get("major").toString().isEmpty()) {
-            wrapper.eq("major", params.get("major").toString());
+        if (params.get("majorName") != null && !params.get("majorName").toString().isEmpty()) {
+            QueryWrapper<Major> majorWrapper = new QueryWrapper<>();
+            majorWrapper.like("major_name", params.get("majorName").toString());
+            majorWrapper.eq("is_dele", 0);
+            List<Major> majorList = majorManagementMapper.selectList(majorWrapper);
+            List<Long> majorIds = majorList.stream().map(Major::getId).collect(Collectors.toList());
+            if (!majorIds.isEmpty()) {
+                wrapper.in("major_id", majorIds);
+            } else {
+                wrapper.eq("major_id", -1L);
+            }
+        }
+        if (params.get("deptName") != null && !params.get("deptName").toString().isEmpty()) {
+            QueryWrapper<Department> deptWrapper = new QueryWrapper<>();
+            deptWrapper.like("dept_name", params.get("deptName").toString());
+            deptWrapper.eq("is_dele", 0);
+            List<Department> deptList = departmentManagementMapper.selectList(deptWrapper);
+            List<Long> deptIds = deptList.stream().map(Department::getId).collect(Collectors.toList());
+            if (!deptIds.isEmpty()) {
+                QueryWrapper<Major> majorWrapper = new QueryWrapper<>();
+                majorWrapper.in("department_id", deptIds);
+                majorWrapper.eq("is_dele", 0);
+                List<Major> majorList = majorManagementMapper.selectList(majorWrapper);
+                List<Long> majorIds = majorList.stream().map(Major::getId).collect(Collectors.toList());
+                if (!majorIds.isEmpty()) {
+                    wrapper.in("major_id", majorIds);
+                } else {
+                    wrapper.eq("major_id", -1L);
+                }
+            } else {
+                wrapper.eq("major_id", -1L);
+            }
         }
 
         wrapper.orderByDesc("create_time");

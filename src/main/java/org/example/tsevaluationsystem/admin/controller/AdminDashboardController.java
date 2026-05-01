@@ -25,6 +25,12 @@ public class AdminDashboardController {
     private CourseManagementMapper courseManagementMapper;
     @Autowired
     private ArrangementManagementMapper arrangementManagementMapper;
+    @Autowired
+    private MajorManagementMapper majorManagementMapper;
+    @Autowired
+    private DepartmentManagementMapper departmentManagementMapper;
+    @Autowired
+    private TitleManagementMapper titleManagementMapper;
 
     @PostMapping("/stats")
     public Result stats() {
@@ -49,6 +55,18 @@ public class AdminDashboardController {
         QueryWrapper<ClassTeacher> arrangementWrapper = new QueryWrapper<>();
         arrangementWrapper.eq("is_dele", 0);
         data.put("arrangementCount", arrangementManagementMapper.selectCount(arrangementWrapper));
+
+        QueryWrapper<Major> majorWrapper = new QueryWrapper<>();
+        majorWrapper.eq("is_dele", 0);
+        data.put("majorCount", majorManagementMapper.selectCount(majorWrapper));
+
+        QueryWrapper<Department> departmentWrapper = new QueryWrapper<>();
+        departmentWrapper.eq("is_dele", 0);
+        data.put("departmentCount", departmentManagementMapper.selectCount(departmentWrapper));
+
+        QueryWrapper<Title> titleWrapper = new QueryWrapper<>();
+        titleWrapper.eq("is_dele", 0);
+        data.put("titleCount", titleManagementMapper.selectCount(titleWrapper));
 
         return new Result(1, "success", data);
     }

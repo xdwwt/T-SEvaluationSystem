@@ -26,8 +26,10 @@ public class TeacherInfo {
      */
     private Integer gender;
 
-    private String title;
-    private String department;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long titleId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long departmentId;
     private String phone;
     private String email;
     private LocalDate entryDate;

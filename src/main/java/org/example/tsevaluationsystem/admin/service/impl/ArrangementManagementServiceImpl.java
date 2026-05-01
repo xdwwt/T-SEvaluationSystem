@@ -28,11 +28,11 @@ public class ArrangementManagementServiceImpl implements ArrangementManagementSe
     @Autowired
     private ArrangementManagementMapper arrangementManagementMapper;
     @Autowired
+    private CourseManagementMapper courseManagementMapper;
+    @Autowired
     private ClassManagementMapper classManagementMapper;
     @Autowired
     private TeacherManagementMapper teacherManagementMapper;
-    @Autowired
-    private CourseManagementMapper courseManagementMapper;
 
     @Override
     public Result insert(ClassTeacher classTeacher) {
@@ -59,14 +59,41 @@ public class ArrangementManagementServiceImpl implements ArrangementManagementSe
         QueryWrapper<ClassTeacher> wrapper = new QueryWrapper<>();
         wrapper.eq("is_dele", 0);
 
-        if (params.get("classId") != null && !params.get("classId").toString().isEmpty()) {
-            wrapper.eq("class_id", Long.parseLong(params.get("classId").toString()));
+        if (params.get("className") != null && !params.get("className").toString().isEmpty()) {
+            QueryWrapper<ClassInfo> classWrapper = new QueryWrapper<>();
+            classWrapper.like("class_name", params.get("className").toString());
+            classWrapper.eq("is_dele", 0);
+            List<ClassInfo> classList = classManagementMapper.selectList(classWrapper);
+            List<Long> classIds = classList.stream().map(ClassInfo::getId).collect(Collectors.toList());
+            if (!classIds.isEmpty()) {
+                wrapper.in("class_id", classIds);
+            } else {
+                wrapper.eq("class_id", -1L);
+            }
         }
-        if (params.get("teacherId") != null && !params.get("teacherId").toString().isEmpty()) {
-            wrapper.eq("teacher_id", Long.parseLong(params.get("teacherId").toString()));
+        if (params.get("teacherName") != null && !params.get("teacherName").toString().isEmpty()) {
+            QueryWrapper<TeacherInfo> teacherWrapper = new QueryWrapper<>();
+            teacherWrapper.like("name", params.get("teacherName").toString());
+            teacherWrapper.eq("is_dele", 0);
+            List<TeacherInfo> teacherList = teacherManagementMapper.selectList(teacherWrapper);
+            List<Long> teacherIds = teacherList.stream().map(TeacherInfo::getId).collect(Collectors.toList());
+            if (!teacherIds.isEmpty()) {
+                wrapper.in("teacher_id", teacherIds);
+            } else {
+                wrapper.eq("teacher_id", -1L);
+            }
         }
-        if (params.get("courseId") != null && !params.get("courseId").toString().isEmpty()) {
-            wrapper.eq("course_id", Long.parseLong(params.get("courseId").toString()));
+        if (params.get("courseName") != null && !params.get("courseName").toString().isEmpty()) {
+            QueryWrapper<Course> courseWrapper = new QueryWrapper<>();
+            courseWrapper.like("course_name", params.get("courseName").toString());
+            courseWrapper.eq("is_dele", 0);
+            List<Course> courseList = courseManagementMapper.selectList(courseWrapper);
+            List<Long> courseIds = courseList.stream().map(Course::getId).collect(Collectors.toList());
+            if (!courseIds.isEmpty()) {
+                wrapper.in("course_id", courseIds);
+            } else {
+                wrapper.eq("course_id", -1L);
+            }
         }
         if (params.get("semester") != null && !params.get("semester").toString().isEmpty()) {
             wrapper.eq("semester", params.get("semester").toString());

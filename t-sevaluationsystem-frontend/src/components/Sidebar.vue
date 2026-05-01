@@ -8,6 +8,9 @@
       <div class="menu-item" :class="{ active: route.path === '/admin/teacher' }" @click="navigate('/admin/teacher')">教师管理</div>
       <div class="menu-item" :class="{ active: route.path === '/admin/student' }" @click="navigate('/admin/student')">学生管理</div>
       <div class="menu-item" :class="{ active: route.path === '/admin/course' }" @click="navigate('/admin/course')">课程管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/major' }" @click="navigate('/admin/major')">专业管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/department' }" @click="navigate('/admin/department')">院系管理</div>
+      <div class="menu-item" :class="{ active: route.path === '/admin/title' }" @click="navigate('/admin/title')">职称管理</div>
       <div class="menu-item" :class="{ active: route.path === '/admin/class' }" @click="navigate('/admin/class')">班级管理</div>
       <div class="menu-item" :class="{ active: route.path === '/admin/arrangement' }" @click="navigate('/admin/arrangement')">排课管理</div>
     </div>
@@ -69,6 +72,10 @@ const handleLogout = () => {
   flex-direction: column;
   justify-content: flex-start;
   padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
 }
 
 .logo {

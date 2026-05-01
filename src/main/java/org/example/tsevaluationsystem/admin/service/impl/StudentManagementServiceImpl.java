@@ -4,9 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.example.tsevaluationsystem.admin.mapper.ClassManagementMapper;
+import org.example.tsevaluationsystem.admin.mapper.ClassStudentMapper;
+import org.example.tsevaluationsystem.admin.mapper.MajorManagementMapper;
 import org.example.tsevaluationsystem.admin.mapper.StudentManagementMapper;
 import org.example.tsevaluationsystem.admin.mapper.UserMapper;
 import org.example.tsevaluationsystem.admin.service.StudentManagementService;
+import org.example.tsevaluationsystem.dto.ClassInfo;
+import org.example.tsevaluationsystem.dto.ClassStudent;
+import org.example.tsevaluationsystem.dto.Major;
 import org.example.tsevaluationsystem.dto.Result;
 import org.example.tsevaluationsystem.dto.StudentInfo;
 import org.example.tsevaluationsystem.dto.UserInfo;
@@ -17,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentManagementServiceImpl implements StudentManagementService {
@@ -25,6 +32,12 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     private StudentManagementMapper studentManagementMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private ClassStudentMapper classStudentMapper;
+    @Autowired
+    private MajorManagementMapper majorManagementMapper;
+    @Autowired
+    private ClassManagementMapper classManagementMapper;
 
     @Override
     @Transactional
@@ -58,6 +71,16 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         userInfo.setIsDele(0);
         userMapper.insert(userInfo);
 
+        // 5. 插入班级关联
+        if (studentInfo.getClassId() != null) {
+            ClassStudent cs = new ClassStudent();
+            cs.setId(IdWorker.getId());
+            cs.setClassId(studentInfo.getClassId());
+            cs.setStudentId(studentInfo.getId());
+            cs.setIsDele(0);
+            classStudentMapper.insert(cs);
+        }
+
         return new Result(1, "success", userInfo.getUserId());
     }
 
@@ -78,13 +101,55 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         if (params.get("grade") != null && !params.get("grade").toString().isEmpty()) {
             wrapper.eq("grade", params.get("grade").toString());
         }
-        if (params.get("major") != null && !params.get("major").toString().isEmpty()) {
-            wrapper.eq("major", params.get("major").toString());
+        if (params.get("majorName") != null && !params.get("majorName").toString().isEmpty()) {
+            QueryWrapper<Major> majorWrapper = new QueryWrapper<>();
+            majorWrapper.like("major_name", params.get("majorName").toString());
+            majorWrapper.eq("is_dele", 0);
+            List<Major> majorList = majorManagementMapper.selectList(majorWrapper);
+            List<Long> majorIds = majorList.stream().map(Major::getId).collect(Collectors.toList());
+            if (!majorIds.isEmpty()) {
+                wrapper.in("major_id", majorIds);
+            } else {
+                wrapper.eq("major_id", -1L);
+            }
+        }
+        if (params.get("className") != null && !params.get("className").toString().isEmpty()) {
+            QueryWrapper<ClassInfo> classWrapper = new QueryWrapper<>();
+            classWrapper.like("class_name", params.get("className").toString());
+            classWrapper.eq("is_dele", 0);
+            List<ClassInfo> classList = classManagementMapper.selectList(classWrapper);
+            List<Long> classIds = classList.stream().map(ClassInfo::getId).collect(Collectors.toList());
+            if (!classIds.isEmpty()) {
+                QueryWrapper<ClassStudent> csWrapper = new QueryWrapper<>();
+                csWrapper.in("class_id", classIds);
+                csWrapper.eq("is_dele", 0);
+                List<ClassStudent> csList = classStudentMapper.selectList(csWrapper);
+                List<Long> studentIds = csList.stream().map(ClassStudent::getStudentId).collect(Collectors.toList());
+                if (!studentIds.isEmpty()) {
+                    wrapper.in("id", studentIds);
+                } else {
+                    wrapper.eq("id", -1L);
+                }
+            } else {
+                wrapper.eq("id", -1L);
+            }
         }
 
         wrapper.orderByDesc("create_time");
         PageHelper.startPage(pageNum, pageSize);
         List<StudentInfo> list = studentManagementMapper.selectList(wrapper);
+
+        // 填充班级ID
+        for (StudentInfo student : list) {
+            QueryWrapper<ClassStudent> csWrapper = new QueryWrapper<>();
+            csWrapper.eq("student_id", student.getId());
+            csWrapper.eq("is_dele", 0);
+            ClassStudent cs = classStudentMapper.selectOne(csWrapper);
+            if (cs != null) {
+                student.setClassId(cs.getClassId());
+            }
+        }
+
         PageInfo<StudentInfo> pageInfo = new PageInfo<>(list);
 
         Map<String, Object> result = new HashMap<>();
@@ -115,6 +180,27 @@ public class StudentManagementServiceImpl implements StudentManagementService {
             userMapper.updateById(userInfo);
         }
 
+        // 4. 处理班级关联
+        if (studentInfo.getClassId() != null) {
+            QueryWrapper<ClassStudent> csWrapper = new QueryWrapper<>();
+            csWrapper.eq("student_id", studentInfo.getId());
+            csWrapper.eq("is_dele", 0);
+            ClassStudent existCs = classStudentMapper.selectOne(csWrapper);
+            if (existCs != null) {
+                if (!existCs.getClassId().equals(studentInfo.getClassId())) {
+                    existCs.setClassId(studentInfo.getClassId());
+                    classStudentMapper.updateById(existCs);
+                }
+            } else {
+                ClassStudent cs = new ClassStudent();
+                cs.setId(IdWorker.getId());
+                cs.setClassId(studentInfo.getClassId());
+                cs.setStudentId(studentInfo.getId());
+                cs.setIsDele(0);
+                classStudentMapper.insert(cs);
+            }
+        }
+
         return new Result(1, "success", null);
     }
 
@@ -140,6 +226,16 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         }
         studentInfo.setIsDele(1);
         studentManagementMapper.updateById(studentInfo);
+
+        // 3. 逻辑删除班级关联
+        QueryWrapper<ClassStudent> csWrapper = new QueryWrapper<>();
+        csWrapper.eq("student_id", studentInfo.getId());
+        csWrapper.eq("is_dele", 0);
+        ClassStudent cs = classStudentMapper.selectOne(csWrapper);
+        if (cs != null) {
+            cs.setIsDele(1);
+            classStudentMapper.updateById(cs);
+        }
 
         return new Result(1, "success", null);
     }

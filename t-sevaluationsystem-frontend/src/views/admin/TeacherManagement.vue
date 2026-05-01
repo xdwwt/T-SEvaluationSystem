@@ -5,32 +5,22 @@
       <div class="search-row">
         <div class="search-item">
           <label>工号</label>
-          <input v-model="searchForm.teacherNo" placeholder="请输入工号" />
+          <input v-model="searchForm.teacherNo" placeholder="请输入工号" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>姓名</label>
-          <input v-model="searchForm.name" placeholder="请输入姓名" />
+          <input v-model="searchForm.name" placeholder="请输入姓名" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>职称</label>
-          <select v-model="searchForm.title">
+          <select v-model="searchForm.titleId">
             <option value="">全部</option>
-            <option value="教授">教授</option>
-            <option value="副教授">副教授</option>
-            <option value="讲师">讲师</option>
-            <option value="助教">助教</option>
+            <option v-for="item in titleOptions" :key="item.id" :value="item.id">{{ item.titleName }}</option>
           </select>
         </div>
         <div class="search-item">
           <label>院系</label>
-          <select v-model="searchForm.department">
-            <option value="">全部</option>
-            <option value="计算机学院">计算机学院</option>
-            <option value="数学学院">数学学院</option>
-            <option value="外语学院">外语学院</option>
-            <option value="文学院">文学院</option>
-            <option value="理学院">理学院</option>
-          </select>
+          <input v-model="searchForm.deptName" placeholder="请输入院系" @keyup.enter="handleSearch" />
         </div>
         <div class="search-btns">
           <button class="btn-search" @click="handleSearch">查询</button>
@@ -67,8 +57,8 @@
             <td>{{ item.teacherNo }}</td>
             <td>{{ item.name }}</td>
             <td>{{ item.gender === 1 ? '男' : '女' }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.department }}</td>
+            <td>{{ getTitleName(item.titleId) }}</td>
+            <td>{{ getDeptName(item.departmentId) }}</td>
             <td>{{ item.phone }}</td>
             <td>{{ item.email }}</td>
             <td>
@@ -176,7 +166,7 @@
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>性别</label>
+                <label>性别 <span class="required">*</span></label>
                 <select v-model="form.gender">
                   <option :value="null">请选择</option>
                   <option :value="1">男</option>
@@ -186,13 +176,10 @@
             </div>
             <div class="form-col">
               <div class="form-item">
-                <label>职称</label>
-                <select v-model="form.title">
+                <label>职称 <span class="required">*</span></label>
+                <select v-model="form.titleId">
                   <option value="">请选择</option>
-                  <option value="教授">教授</option>
-                  <option value="副教授">副教授</option>
-                  <option value="讲师">讲师</option>
-                  <option value="助教">助教</option>
+                  <option v-for="item in titleOptions" :key="item.id" :value="item.id">{{ item.titleName }}</option>
                 </select>
               </div>
             </div>
@@ -200,14 +187,10 @@
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>院系</label>
-                <select v-model="form.department">
+                <label>院系 <span class="required">*</span></label>
+                <select v-model="form.departmentId">
                   <option value="">请选择</option>
-                  <option value="计算机学院">计算机学院</option>
-                  <option value="数学学院">数学学院</option>
-                  <option value="外语学院">外语学院</option>
-                  <option value="文学院">文学院</option>
-                  <option value="理学院">理学院</option>
+                  <option v-for="item in departmentOptions" :key="item.id" :value="item.id">{{ item.deptName }}</option>
                 </select>
               </div>
             </div>
@@ -246,6 +229,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { addTeacherApi, listTeacherApi, resetPasswordApi, deleteTeacherApi, updateTeacherApi } from '@/api/teacher.js'
+import { allDepartmentApi } from '@/api/department.js'
+import { allTitleApi } from '@/api/title.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -269,19 +254,57 @@ const pageSize = ref(20)
 const total = ref(0)
 const pages = ref(0)
 
+const departmentOptions = ref([])
+
+const fetchDepartments = async () => {
+  try {
+    const res = await allDepartmentApi()
+    if (res.code === 1) {
+      departmentOptions.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取院系列表失败', error)
+  }
+}
+
+const getDeptName = (departmentId) => {
+  if (!departmentId) return ''
+  const dept = departmentOptions.value.find(d => String(d.id) === String(departmentId))
+  return dept ? dept.deptName : ''
+}
+
+const titleOptions = ref([])
+
+const fetchTitles = async () => {
+  try {
+    const res = await allTitleApi()
+    if (res.code === 1) {
+      titleOptions.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取职称列表失败', error)
+  }
+}
+
+const getTitleName = (titleId) => {
+  if (!titleId) return ''
+  const t = titleOptions.value.find(item => String(item.id) === String(titleId))
+  return t ? t.titleName : ''
+}
+
 const searchForm = ref({
   teacherNo: '',
   name: '',
-  title: '',
-  department: ''
+  titleId: '',
+  deptName: ''
 })
 
 const form = ref({
   teacherNo: '',
   name: '',
   gender: null,
-  title: '',
-  department: '',
+  titleId: '',
+  departmentId: '',
   phone: '',
   email: '',
   entryDate: ''
@@ -312,8 +335,8 @@ const handleReset = () => {
   searchForm.value = {
     teacherNo: '',
     name: '',
-    title: '',
-    department: ''
+    titleId: '',
+    deptName: ''
   }
   pageNum.value = 1
   fetchList()
@@ -405,8 +428,8 @@ const handleAddClick = () => {
     teacherNo: '',
     name: '',
     gender: null,
-    title: '',
-    department: '',
+    titleId: '',
+    departmentId: '',
     phone: '',
     email: '',
     entryDate: ''
@@ -422,8 +445,8 @@ const handleEditClick = (item) => {
     teacherNo: item.teacherNo,
     name: item.name,
     gender: item.gender,
-    title: item.title || '',
-    department: item.department || '',
+    titleId: item.titleId || '',
+    departmentId: item.departmentId || '',
     phone: item.phone || '',
     email: item.email || '',
     entryDate: item.entryDate || ''
@@ -440,16 +463,25 @@ const handleCloseModal = () => {
 
 const handleSubmit = async () => {
   errorMsg.value = ''
-  if (isEdit.value) {
-    if (!form.value.name) {
-      errorMsg.value = '姓名不能为空'
-      return
-    }
-  } else {
-    if (!form.value.teacherNo || !form.value.name) {
-      errorMsg.value = '工号和姓名不能为空'
-      return
-    }
+  if (!form.value.name) {
+    errorMsg.value = '姓名不能为空'
+    return
+  }
+  if (!isEdit.value && !form.value.teacherNo) {
+    errorMsg.value = '工号不能为空'
+    return
+  }
+  if (form.value.gender === null || form.value.gender === undefined) {
+    errorMsg.value = '性别不能为空'
+    return
+  }
+  if (!form.value.titleId) {
+    errorMsg.value = '职称不能为空'
+    return
+  }
+  if (!form.value.departmentId) {
+    errorMsg.value = '院系不能为空'
+    return
   }
 
   loading.value = true
@@ -465,8 +497,8 @@ const handleSubmit = async () => {
         teacherNo: '',
         name: '',
         gender: null,
-        title: '',
-        department: '',
+        titleId: '',
+        departmentId: '',
         phone: '',
         email: '',
         entryDate: ''
@@ -483,6 +515,8 @@ const handleSubmit = async () => {
 }
 
 onMounted(() => {
+  fetchDepartments()
+  fetchTitles()
   fetchList()
 })
 </script>

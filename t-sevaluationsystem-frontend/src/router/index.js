@@ -6,6 +6,9 @@ import StudentManagement from '@/views/admin/StudentManagement.vue'
 import ClassManagement from '@/views/admin/ClassManagement.vue'
 import CourseManagement from '@/views/admin/CourseManagement.vue'
 import ArrangementManagement from '@/views/admin/ArrangementManagement.vue'
+import MajorManagement from '@/views/admin/MajorManagement.vue'
+import DepartmentManagement from '@/views/admin/DepartmentManagement.vue'
+import TitleManagement from '@/views/admin/TitleManagement.vue'
 import StudentDashboard from '@/views/student/StudentDashboard.vue'
 import TeacherDashboard from '@/views/teacher/TeacherDashboard.vue'
 
@@ -53,6 +56,24 @@ const routes = [
     path: '/admin/arrangement',
     name: 'ArrangementManagement',
     component: ArrangementManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/major',
+    name: 'MajorManagement',
+    component: MajorManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/department',
+    name: 'DepartmentManagement',
+    component: DepartmentManagement,
+    meta: { requiresAuth: true, role: 0 }
+  },
+  {
+    path: '/admin/title',
+    name: 'TitleManagement',
+    component: TitleManagement,
     meta: { requiresAuth: true, role: 0 }
   },
   {

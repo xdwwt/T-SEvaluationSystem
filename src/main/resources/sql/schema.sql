@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS tb_teacher_info (
     teacher_no  VARCHAR(20) NOT NULL UNIQUE COMMENT '教师工号',
     name        VARCHAR(50) NOT NULL COMMENT '姓名',
     gender      TINYINT COMMENT '性别 0:女 1:男',
-    title       VARCHAR(20) COMMENT '职称（教授/副教授/讲师等）',
-    department  VARCHAR(50) COMMENT '所属院系',
+    title_id    BIGINT COMMENT '职称ID',
+    department_id BIGINT COMMENT '所属院系ID',
     phone       VARCHAR(20) COMMENT '电话',
     email       VARCHAR(50) COMMENT '邮箱',
     entry_date  DATE COMMENT '入职日期',
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS tb_student_info (
     name        VARCHAR(50) NOT NULL COMMENT '姓名',
     gender      TINYINT COMMENT '性别 0:女 1:男',
     grade       VARCHAR(10) COMMENT '年级',
-    major       VARCHAR(50) COMMENT '专业',
+    major_id    BIGINT COMMENT '专业ID',
     phone       VARCHAR(20) COMMENT '电话',
     email       VARCHAR(50) COMMENT '邮箱',
     is_dele     TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
@@ -57,18 +57,46 @@ CREATE TABLE IF NOT EXISTS tb_course (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) COMMENT='课程表';
 
--- 5. 班级表
+-- 5. 专业表
+CREATE TABLE IF NOT EXISTS tb_major (
+    id          BIGINT PRIMARY KEY COMMENT '主键ID',
+    major_name  VARCHAR(50) NOT NULL UNIQUE COMMENT '专业名称',
+    department_id BIGINT COMMENT '所属院系ID',
+    is_dele     TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT='专业表';
+
+-- 6. 院系表
+CREATE TABLE IF NOT EXISTS tb_department (
+    id          BIGINT PRIMARY KEY COMMENT '主键ID',
+    dept_name   VARCHAR(50) NOT NULL UNIQUE COMMENT '院系名称',
+    is_dele     TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT='院系表';
+
+-- 7. 职称表
+CREATE TABLE IF NOT EXISTS tb_title (
+    id          BIGINT PRIMARY KEY COMMENT '主键ID',
+    title_name  VARCHAR(50) NOT NULL UNIQUE COMMENT '职称名称',
+    is_dele     TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT='职称表';
+
+-- 8. 班级表
 CREATE TABLE IF NOT EXISTS tb_class_info (
     id          BIGINT PRIMARY KEY COMMENT '主键ID',
     class_name  VARCHAR(50) NOT NULL COMMENT '班级名称',
     grade       VARCHAR(10) COMMENT '年级',
-    major       VARCHAR(50) COMMENT '专业',
+    major_id    BIGINT COMMENT '专业ID',
     is_dele     TINYINT DEFAULT 0 COMMENT '删除标志 0:未删除 1:已删除',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) COMMENT='班级表';
 
--- 6. 班级-教师关联表
+-- 7. 班级-教师关联表
 CREATE TABLE IF NOT EXISTS tb_class_teacher (
     id         BIGINT PRIMARY KEY COMMENT '主键ID',
     class_id   BIGINT NOT NULL COMMENT '班级ID',
@@ -80,7 +108,7 @@ CREATE TABLE IF NOT EXISTS tb_class_teacher (
     UNIQUE KEY uk_class_teacher_course (class_id, teacher_id, course_id, semester)
 ) COMMENT='班级-教师关联表';
 
--- 7. 班级-学生关联表
+-- 8. 班级-学生关联表
 CREATE TABLE IF NOT EXISTS tb_class_student (
     id         BIGINT PRIMARY KEY COMMENT '主键ID',
     class_id   BIGINT NOT NULL COMMENT '班级ID',
@@ -90,7 +118,7 @@ CREATE TABLE IF NOT EXISTS tb_class_student (
     UNIQUE KEY uk_class_student (class_id, student_id)
 ) COMMENT='班级-学生关联表';
 
--- 8. 成绩表
+-- 9. 成绩表
 CREATE TABLE IF NOT EXISTS tb_score (
     id         BIGINT PRIMARY KEY COMMENT '主键ID',
     student_id BIGINT NOT NULL COMMENT '学生ID',
@@ -108,7 +136,7 @@ CREATE TABLE IF NOT EXISTS tb_score (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) COMMENT='成绩表';
 
--- 9. 教师评价表
+-- 10. 教师评价表
 CREATE TABLE IF NOT EXISTS tb_teacher_evaluation (
     id             BIGINT PRIMARY KEY COMMENT '主键ID',
     teacher_id     BIGINT NOT NULL COMMENT '被评价教师ID',
@@ -125,7 +153,21 @@ CREATE TABLE IF NOT EXISTS tb_teacher_evaluation (
 ) COMMENT='教师评价表';
 
 
-ALTER TABLE tb_score
-    ADD COLUMN usual_score DECIMAL(5,2) COMMENT '平时分',
-    ADD COLUMN final_score DECIMAL(5,2) COMMENT '期末考试分',
-    ADD COLUMN is_viewable TINYINT DEFAULT 0 COMMENT '是否可查看 0:不可查看 1:可查看';
+ALTER TABLE tb_major ADD COLUMN department_id BIGINT COMMENT '所属院系ID';
+
+ALTER TABLE tb_teacher_info
+    CHANGE COLUMN title title_id BIGINT COMMENT '职称ID';
+
+-- 如果原来有 department 字段，直接改名+改类型
+ALTER TABLE tb_teacher_info
+    CHANGE COLUMN department department_id BIGINT COMMENT '所属院系ID';
+
+-- 如果上面报错说 department 不存在，就直接新增
+ALTER TABLE tb_teacher_info
+    ADD COLUMN department_id BIGINT COMMENT '所属院系ID';
+
+ALTER TABLE tb_teacher_info ADD COLUMN title_id BIGINT COMMENT '职称ID';
+
+ALTER TABLE tb_student_info ADD COLUMN major_id BIGINT COMMENT '专业ID';
+
+ALTER TABLE tb_class_info ADD COLUMN major_id BIGINT COMMENT '专业ID';

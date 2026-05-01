@@ -5,24 +5,15 @@
       <div class="search-row">
         <div class="search-item">
           <label>班级</label>
-          <select v-model="searchForm.classId">
-            <option value="">全部</option>
-            <option v-for="c in classOptions" :key="c.id" :value="c.id">{{ c.className }}</option>
-          </select>
+          <input v-model="searchForm.className" placeholder="请输入班级" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>教师</label>
-          <select v-model="searchForm.teacherId">
-            <option value="">全部</option>
-            <option v-for="t in teacherOptions" :key="t.id" :value="t.id">{{ t.name }}</option>
-          </select>
+          <input v-model="searchForm.teacherName" placeholder="请输入教师姓名" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>课程</label>
-          <select v-model="searchForm.courseId">
-            <option value="">全部</option>
-            <option v-for="c in courseOptions" :key="c.id" :value="c.id">{{ c.courseName }}</option>
-          </select>
+          <input v-model="searchForm.courseName" placeholder="请输入课程名称" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>学期</label>
@@ -219,9 +210,9 @@ const pages = ref(0)
 
 // 搜索条件
 const searchForm = ref({
-  classId: '',
-  teacherId: '',
-  courseId: '',
+  className: '',
+  teacherName: '',
+  courseName: '',
   semester: ''
 })
 
@@ -275,9 +266,9 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.value = {
-    classId: '',
-    teacherId: '',
-    courseId: '',
+    className: '',
+    teacherName: '',
+    courseName: '',
     semester: ''
   }
   pageNum.value = 1

@@ -5,7 +5,7 @@
       <div class="search-row">
         <div class="search-item">
           <label>班级名称</label>
-          <input v-model="searchForm.className" placeholder="请输入班级名称" />
+          <input v-model="searchForm.className" placeholder="请输入班级名称" @keyup.enter="handleSearch" />
         </div>
         <div class="search-item">
           <label>年级</label>
@@ -18,15 +18,12 @@
           </select>
         </div>
         <div class="search-item">
+          <label>院系</label>
+          <input v-model="searchForm.deptName" placeholder="请输入院系" @keyup.enter="handleSearch" />
+        </div>
+        <div class="search-item">
           <label>专业</label>
-          <select v-model="searchForm.major">
-            <option value="">全部</option>
-            <option value="计算机科学与技术">计算机科学与技术</option>
-            <option value="软件工程">软件工程</option>
-            <option value="数学与应用数学">数学与应用数学</option>
-            <option value="英语">英语</option>
-            <option value="汉语言文学">汉语言文学</option>
-          </select>
+          <input v-model="searchForm.majorName" placeholder="请输入专业" @keyup.enter="handleSearch" />
         </div>
         <div class="search-btns">
           <button class="btn-search" @click="handleSearch">查询</button>
@@ -58,7 +55,7 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.className }}</td>
             <td>{{ item.grade }}</td>
-            <td>{{ item.major }}</td>
+            <td>{{ getMajorName(item.majorId) }}</td>
             <td>
               <button class="btn-edit" @click="handleEditClick(item)">修改</button>
               <button class="btn-delete" @click="handleDeleteClick(item.id)">删除</button>
@@ -139,7 +136,7 @@
             </div>
             <div class="form-col">
               <div class="form-item">
-                <label>年级</label>
+                <label>年级 <span class="required">*</span></label>
                 <select v-model="form.grade">
                   <option value="">请选择</option>
                   <option value="2021">2021</option>
@@ -153,14 +150,21 @@
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>专业</label>
-                <select v-model="form.major">
+                <label>院系 <span class="required">*</span></label>
+                <select v-model="form.departmentId" @change="form.majorId = ''">
                   <option value="">请选择</option>
-                  <option value="计算机科学与技术">计算机科学与技术</option>
-                  <option value="软件工程">软件工程</option>
-                  <option value="数学与应用数学">数学与应用数学</option>
-                  <option value="英语">英语</option>
-                  <option value="汉语言文学">汉语言文学</option>
+                  <option v-for="d in departmentOptions" :key="d.id" :value="d.id">{{ d.deptName }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-item">
+                <label>专业 <span class="required">*</span></label>
+                <select v-model="form.majorId">
+                  <option value="">请选择</option>
+                  <option v-for="m in filteredMajorOptions" :key="m.id" :value="m.id">{{ m.majorName }}</option>
                 </select>
               </div>
             </div>
@@ -245,7 +249,51 @@ import {
   addStudentToClassApi,
   removeStudentFromClassApi
 } from '@/api/classStudent.js'
+import { allMajorApi } from '@/api/major.js'
+import { allDepartmentApi } from '@/api/department.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+
+const majorOptions = ref([])
+const departmentOptions = ref([])
+
+const fetchMajors = async () => {
+  try {
+    const res = await allMajorApi()
+    if (res.code === 1) {
+      majorOptions.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取专业列表失败', error)
+  }
+}
+
+const fetchDepartments = async () => {
+  try {
+    const res = await allDepartmentApi()
+    if (res.code === 1) {
+      departmentOptions.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取院系列表失败', error)
+  }
+}
+
+const getDeptName = (deptId) => {
+  if (!deptId) return ''
+  const dept = departmentOptions.value.find(d => String(d.id) === String(deptId))
+  return dept ? dept.deptName : ''
+}
+
+const getMajorName = (majorId) => {
+  if (!majorId) return ''
+  const major = majorOptions.value.find(m => String(m.id) === String(majorId))
+  return major ? major.majorName : ''
+}
+
+const filteredMajorOptions = computed(() => {
+  if (!form.value.departmentId) return []
+  return majorOptions.value.filter(m => String(m.departmentId) === String(form.value.departmentId))
+})
 
 const showAdd = ref(false)
 const isEdit = ref(false)
@@ -275,13 +323,15 @@ const pages = ref(0)
 const searchForm = ref({
   className: '',
   grade: '',
-  major: ''
+  deptName: '',
+  majorName: ''
 })
 
 const form = ref({
   className: '',
   grade: '',
-  major: ''
+  departmentId: '',
+  majorId: ''
 })
 
 const fetchList = async () => {
@@ -309,7 +359,8 @@ const handleReset = () => {
   searchForm.value = {
     className: '',
     grade: '',
-    major: ''
+    deptName: '',
+    majorName: ''
   }
   pageNum.value = 1
   fetchList()
@@ -382,7 +433,8 @@ const handleAddClick = () => {
   form.value = {
     className: '',
     grade: '',
-    major: ''
+    departmentId: '',
+    majorId: ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -390,11 +442,13 @@ const handleAddClick = () => {
 
 const handleEditClick = (item) => {
   isEdit.value = true
+  const major = majorOptions.value.find(m => String(m.id) === String(item.majorId))
   form.value = {
     id: item.id,
     className: item.className,
     grade: item.grade || '',
-    major: item.major || ''
+    departmentId: major ? (major.departmentId || '') : '',
+    majorId: item.majorId || ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -410,6 +464,18 @@ const handleSubmit = async () => {
   errorMsg.value = ''
   if (!form.value.className) {
     errorMsg.value = '班级名称不能为空'
+    return
+  }
+  if (!form.value.grade) {
+    errorMsg.value = '年级不能为空'
+    return
+  }
+  if (!form.value.departmentId) {
+    errorMsg.value = '院系不能为空'
+    return
+  }
+  if (!form.value.majorId) {
+    errorMsg.value = '专业不能为空'
     return
   }
 
@@ -501,6 +567,8 @@ const handleRemoveStudent = async (id) => {
 }
 
 onMounted(() => {
+  fetchMajors()
+  fetchDepartments()
   fetchList()
 })
 </script>

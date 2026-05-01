@@ -1,33 +1,11 @@
 <template>
-  <div class="student-page">
+  <div class="department-page">
     <!-- 搜索区 -->
     <div class="search-area">
       <div class="search-row">
         <div class="search-item">
-          <label>学号</label>
-          <input v-model="searchForm.studentNo" placeholder="请输入学号" @keyup.enter="handleSearch" />
-        </div>
-        <div class="search-item">
-          <label>姓名</label>
-          <input v-model="searchForm.name" placeholder="请输入姓名" @keyup.enter="handleSearch" />
-        </div>
-        <div class="search-item">
-          <label>年级</label>
-          <select v-model="searchForm.grade">
-            <option value="">全部</option>
-            <option value="2021">2021</option>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-          </select>
-        </div>
-        <div class="search-item">
-          <label>专业</label>
-          <input v-model="searchForm.majorName" placeholder="请输入专业" @keyup.enter="handleSearch" />
-        </div>
-        <div class="search-item">
-          <label>班级</label>
-          <input v-model="searchForm.className" placeholder="请输入班级" @keyup.enter="handleSearch" />
+          <label>院系名称</label>
+          <input v-model="searchForm.deptName" placeholder="请输入院系名称" @keyup.enter="handleSearch" />
         </div>
         <div class="search-btns">
           <button class="btn-search" @click="handleSearch">查询</button>
@@ -48,36 +26,21 @@
         <thead>
           <tr>
             <th>序号</th>
-            <th>学号</th>
-            <th>姓名</th>
-            <th>性别</th>
-            <th>年级</th>
-            <th>专业</th>
-            <th>班级</th>
-            <th>电话</th>
-            <th>邮箱</th>
+            <th>院系名称</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in tableData" :key="item.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.studentNo }}</td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.gender === 1 ? '男' : '女' }}</td>
-            <td>{{ item.grade }}</td>
-            <td>{{ getMajorName(item.majorId) }}</td>
-            <td>{{ getClassName(item.classId) }}</td>
-            <td>{{ item.phone }}</td>
-            <td>{{ item.email }}</td>
+            <td>{{ item.deptName }}</td>
             <td>
               <button class="btn-edit" @click="handleEditClick(item)">修改</button>
-              <button class="btn-delete" @click="handleDeleteClick(item.studentNo)">删除</button>
-              <button class="btn-reset" @click="handleResetClick(item.studentNo)">重置密码</button>
+              <button class="btn-delete" @click="handleDeleteClick(item.id)">删除</button>
             </td>
           </tr>
           <tr v-if="tableData.length === 0">
-            <td colspan="10" class="no-data">暂无数据</td>
+            <td colspan="3" class="no-data">暂无数据</td>
           </tr>
         </tbody>
       </table>
@@ -116,28 +79,11 @@
       @confirm="showSuccess = false"
     />
 
-    <!-- 重置密码确认弹窗 -->
-    <ConfirmDialog
-      v-model:visible="showResetConfirm"
-      title="确认重置"
-      message="是否重置该学生的密码？"
-      @confirm="handleResetConfirm"
-    />
-
-    <!-- 重置密码成功弹窗 -->
-    <ConfirmDialog
-      v-model:visible="showResetSuccess"
-      title="提示"
-      message="密码已重置为 123456"
-      :showCancel="false"
-      @confirm="showResetSuccess = false"
-    />
-
     <!-- 删除确认弹窗 -->
     <ConfirmDialog
       v-model:visible="showDeleteConfirm"
       title="确认删除"
-      message="是否删除该学生？删除后不可恢复。"
+      message="是否删除该院系？删除后不可恢复。"
       @confirm="handleDeleteConfirm"
     />
 
@@ -150,94 +96,19 @@
       @confirm="showDeleteSuccess = false"
     />
 
-    <!-- 新增/编辑学生弹窗 -->
+    <!-- 新增/编辑院系弹窗 -->
     <div class="modal" v-if="showAdd" @click="handleCloseModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ isEdit ? '编辑学生' : '新增学生' }}</h3>
+          <h3>{{ isEdit ? '编辑院系' : '新增院系' }}</h3>
           <span class="close-btn" @click="handleCloseModal">x</span>
         </div>
         <div class="modal-body">
           <div class="form-row">
             <div class="form-col">
               <div class="form-item">
-                <label>学号 <span class="required">*</span></label>
-                <input v-model="form.studentNo" :disabled="isEdit" placeholder="请输入学号" />
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-item">
-                <label>姓名 <span class="required">*</span></label>
-                <input v-model="form.name" placeholder="请输入姓名" />
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-item">
-                <label>性别 <span class="required">*</span></label>
-                <select v-model="form.gender">
-                  <option :value="null">请选择</option>
-                  <option :value="1">男</option>
-                  <option :value="0">女</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-item">
-                <label>年级 <span class="required">*</span></label>
-                <select v-model="form.grade">
-                  <option value="">请选择</option>
-                  <option value="2021">2021</option>
-                  <option value="2022">2022</option>
-                  <option value="2023">2023</option>
-                  <option value="2024">2024</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-item">
-                <label>院系 <span class="required">*</span></label>
-                <select v-model="form.departmentId" @change="form.majorId = ''; form.classId = ''">
-                  <option value="">请选择</option>
-                  <option v-for="d in departmentOptions" :key="d.id" :value="d.id">{{ d.deptName }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-item">
-                <label>专业 <span class="required">*</span></label>
-                <select v-model="form.majorId" @change="form.classId = ''">
-                  <option value="">请选择</option>
-                  <option v-for="m in filteredMajorOptions" :key="m.id" :value="m.id">{{ m.majorName }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-item">
-                <label>班级 <span class="required">*</span></label>
-                <select v-model="form.classId">
-                  <option value="">请选择</option>
-                  <option v-for="c in filteredClassOptions" :key="c.id" :value="c.id">{{ c.className }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-item">
-                <label>电话</label>
-                <input v-model="form.phone" placeholder="请输入电话" />
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-item">
-                <label>邮箱</label>
-                <input v-model="form.email" placeholder="请输入邮箱" />
+                <label>院系名称 <span class="required">*</span></label>
+                <input v-model="form.deptName" placeholder="请输入院系名称" />
               </div>
             </div>
           </div>
@@ -254,76 +125,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { addStudentApi, listStudentApi, updateStudentApi, deleteStudentApi, resetPasswordApi } from '@/api/student.js'
-import { allMajorApi } from '@/api/major.js'
-import { allDepartmentApi } from '@/api/department.js'
-import { allClassApi } from '@/api/class.js'
+import { addDepartmentApi, listDepartmentApi, updateDepartmentApi, deleteDepartmentApi } from '@/api/department.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
-
-const majorOptions = ref([])
-const departmentOptions = ref([])
-const classOptions = ref([])
-
-const fetchMajors = async () => {
-  try {
-    const res = await allMajorApi()
-    if (res.code === 1) {
-      majorOptions.value = res.data || []
-    }
-  } catch (error) {
-    console.error('获取专业列表失败', error)
-  }
-}
-
-const fetchDepartments = async () => {
-  try {
-    const res = await allDepartmentApi()
-    if (res.code === 1) {
-      departmentOptions.value = res.data || []
-    }
-  } catch (error) {
-    console.error('获取院系列表失败', error)
-  }
-}
-
-const fetchClasses = async () => {
-  try {
-    const res = await allClassApi()
-    if (res.code === 1) {
-      classOptions.value = res.data || []
-    }
-  } catch (error) {
-    console.error('获取班级列表失败', error)
-  }
-}
-
-const getDeptName = (deptId) => {
-  if (!deptId) return ''
-  const dept = departmentOptions.value.find(d => String(d.id) === String(deptId))
-  return dept ? dept.deptName : ''
-}
-
-const getMajorName = (majorId) => {
-  if (!majorId) return ''
-  const major = majorOptions.value.find(m => String(m.id) === String(majorId))
-  return major ? major.majorName : ''
-}
-
-const getClassName = (classId) => {
-  if (!classId) return ''
-  const cls = classOptions.value.find(c => String(c.id) === String(classId))
-  return cls ? cls.className : ''
-}
-
-const filteredMajorOptions = computed(() => {
-  if (!form.value.departmentId) return []
-  return majorOptions.value.filter(m => String(m.departmentId) === String(form.value.departmentId))
-})
-
-const filteredClassOptions = computed(() => {
-  if (!form.value.majorId) return []
-  return classOptions.value.filter(c => String(c.majorId) === String(form.value.majorId))
-})
 
 const showAdd = ref(false)
 const isEdit = ref(false)
@@ -331,14 +134,12 @@ const loading = ref(false)
 const errorMsg = ref('')
 const tableData = ref([])
 const showSuccess = ref(false)
-const showResetConfirm = ref(false)
-const showResetSuccess = ref(false)
-const resetUserId = ref('')
 
 const showDeleteConfirm = ref(false)
 const showDeleteSuccess = ref(false)
-const deleteUserId = ref('')
+const deleteId = ref('')
 const successMsg = ref('')
+const jumpPage = ref('')
 
 // 分页
 const pageNum = ref(1)
@@ -347,35 +148,20 @@ const total = ref(0)
 const pages = ref(0)
 
 const searchForm = ref({
-  studentNo: '',
-  name: '',
-  grade: '',
-  majorName: '',
-  className: ''
+  deptName: ''
 })
 
 const form = ref({
-  studentNo: '',
-  name: '',
-  gender: null,
-  grade: '',
-  departmentId: '',
-  majorId: '',
-  classId: '',
-  phone: '',
-  email: ''
+  deptName: ''
 })
 
 const fetchList = async () => {
   try {
-    const res = await listStudentApi(searchForm.value, pageNum.value, pageSize.value)
-    console.log('后端返回:', res)
+    const res = await listDepartmentApi(searchForm.value, pageNum.value, pageSize.value)
     if (res.code === 1) {
       tableData.value = res.data.records || []
       total.value = res.data.total || 0
       pages.value = res.data.pages || 0
-    } else {
-      console.warn('接口返回非成功状态:', res)
     }
   } catch (error) {
     console.error('获取列表失败', error)
@@ -389,11 +175,7 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.value = {
-    studentNo: '',
-    name: '',
-    grade: '',
-    majorName: '',
-    className: ''
+    deptName: ''
   }
   pageNum.value = 1
   fetchList()
@@ -419,7 +201,6 @@ const handleNextPage = () => {
   }
 }
 
-const jumpPage = ref('')
 const handleJumpPage = () => {
   const num = parseInt(jumpPage.value)
   if (num && num >= 1 && num <= pages.value) {
@@ -442,32 +223,14 @@ const visiblePages = computed(() => {
   return result
 })
 
-const handleResetClick = (studentNo) => {
-  resetUserId.value = studentNo
-  showResetConfirm.value = true
-}
-
-const handleResetConfirm = async () => {
-  try {
-    const res = await resetPasswordApi(resetUserId.value)
-    if (res.code === 1) {
-      showResetSuccess.value = true
-    } else {
-      alert(res.mes || '重置失败')
-    }
-  } catch (error) {
-    alert('请求失败，请稍后重试')
-  }
-}
-
-const handleDeleteClick = (studentNo) => {
-  deleteUserId.value = studentNo
+const handleDeleteClick = (id) => {
+  deleteId.value = id
   showDeleteConfirm.value = true
 }
 
 const handleDeleteConfirm = async () => {
   try {
-    const res = await deleteStudentApi(deleteUserId.value)
+    const res = await deleteDepartmentApi(deleteId.value)
     if (res.code === 1) {
       showDeleteSuccess.value = true
       fetchList()
@@ -482,15 +245,7 @@ const handleDeleteConfirm = async () => {
 const handleAddClick = () => {
   isEdit.value = false
   form.value = {
-    studentNo: '',
-    name: '',
-    gender: null,
-    grade: '',
-    departmentId: '',
-    majorId: '',
-    classId: '',
-    phone: '',
-    email: ''
+    deptName: ''
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -498,18 +253,9 @@ const handleAddClick = () => {
 
 const handleEditClick = (item) => {
   isEdit.value = true
-  const major = majorOptions.value.find(m => String(m.id) === String(item.majorId))
   form.value = {
     id: item.id,
-    studentNo: item.studentNo,
-    name: item.name,
-    gender: item.gender,
-    grade: item.grade || '',
-    departmentId: major ? (major.departmentId || '') : '',
-    majorId: item.majorId || '',
-    classId: item.classId || '',
-    phone: item.phone || '',
-    email: item.email || ''
+    deptName: item.deptName
   }
   errorMsg.value = ''
   showAdd.value = true
@@ -523,54 +269,22 @@ const handleCloseModal = () => {
 
 const handleSubmit = async () => {
   errorMsg.value = ''
-  if (!form.value.name) {
-    errorMsg.value = '姓名不能为空'
-    return
-  }
-  if (!isEdit.value && !form.value.studentNo) {
-    errorMsg.value = '学号不能为空'
-    return
-  }
-  if (form.value.gender === null || form.value.gender === undefined) {
-    errorMsg.value = '性别不能为空'
-    return
-  }
-  if (!form.value.grade) {
-    errorMsg.value = '年级不能为空'
-    return
-  }
-  if (!form.value.departmentId) {
-    errorMsg.value = '院系不能为空'
-    return
-  }
-  if (!form.value.majorId) {
-    errorMsg.value = '专业不能为空'
-    return
-  }
-  if (!form.value.classId) {
-    errorMsg.value = '班级不能为空'
+  if (!form.value.deptName) {
+    errorMsg.value = '院系名称不能为空'
     return
   }
 
   loading.value = true
   try {
     const res = isEdit.value
-      ? await updateStudentApi(form.value)
-      : await addStudentApi(form.value)
+      ? await updateDepartmentApi(form.value)
+      : await addDepartmentApi(form.value)
     if (res.code === 1) {
       successMsg.value = isEdit.value ? '修改成功' : '新增成功'
       showSuccess.value = true
       handleCloseModal()
       form.value = {
-        studentNo: '',
-        name: '',
-        gender: null,
-        grade: '',
-        departmentId: '',
-        majorId: '',
-        classId: '',
-        phone: '',
-        email: ''
+        deptName: ''
       }
       fetchList()
     } else {
@@ -584,15 +298,12 @@ const handleSubmit = async () => {
 }
 
 onMounted(() => {
-  fetchMajors()
-  fetchDepartments()
-  fetchClasses()
   fetchList()
 })
 </script>
 
 <style scoped>
-.student-page {
+.department-page {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 40px);
@@ -779,21 +490,6 @@ onMounted(() => {
 }
 
 .btn-delete:active {
-  transform: scale(0.96);
-  opacity: 0.9;
-}
-
-.btn-reset {
-  padding: 4px 10px;
-  background: #f39c12;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn-reset:active {
   transform: scale(0.96);
   opacity: 0.9;
 }

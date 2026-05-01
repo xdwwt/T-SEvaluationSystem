@@ -1,14 +1,21 @@
 <template>
   <div class="app-layout">
     <Sidebar />
-    <div class="main-content">
+    <div class="main-content" :style="mainContentStyle">
       <router-view />
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
+
+const route = useRoute()
+const mainContentStyle = computed(() => {
+  return route.path === '/login' ? {} : { marginLeft: '200px' }
+})
 </script>
 
 <style>

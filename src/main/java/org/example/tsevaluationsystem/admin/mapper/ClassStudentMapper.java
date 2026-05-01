@@ -12,18 +12,20 @@ import java.util.Map;
 @Mapper
 public interface ClassStudentMapper extends BaseMapper<ClassStudent> {
 
-    @Select("SELECT cs.id, s.id as studentId, s.student_no as studentNo, s.name, s.gender, s.grade, s.major " +
+    @Select("SELECT cs.id, s.id as studentId, s.student_no as studentNo, s.name, s.gender, s.grade, m.major_name as major " +
             "FROM tb_class_student cs " +
             "JOIN tb_student_info s ON cs.student_id = s.id " +
+            "LEFT JOIN tb_major m ON s.major_id = m.id " +
             "WHERE cs.class_id = #{classId} AND cs.is_dele = 0 AND s.is_dele = 0 " +
             "ORDER BY s.student_no")
     List<Map<String, Object>> selectStudentsByClassId(@Param("classId") Long classId);
 
-    @Select("SELECT id, student_no as studentNo, name, gender, grade, major " +
-            "FROM tb_student_info " +
-            "WHERE is_dele = 0 AND id NOT IN (" +
+    @Select("SELECT s.id, s.student_no as studentNo, s.name, s.gender, s.grade, m.major_name as major " +
+            "FROM tb_student_info s " +
+            "LEFT JOIN tb_major m ON s.major_id = m.id " +
+            "WHERE s.is_dele = 0 AND s.id NOT IN (" +
             "  SELECT student_id FROM tb_class_student WHERE is_dele = 0" +
             ") " +
-            "ORDER BY student_no")
+            "ORDER BY s.student_no")
     List<Map<String, Object>> selectUnassignedStudents();
 }
