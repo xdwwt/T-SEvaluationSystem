@@ -10,7 +10,11 @@ import MajorManagement from '@/views/admin/MajorManagement.vue'
 import DepartmentManagement from '@/views/admin/DepartmentManagement.vue'
 import TitleManagement from '@/views/admin/TitleManagement.vue'
 import StudentDashboard from '@/views/student/StudentDashboard.vue'
+import StudentEvaluation from '@/views/student/StudentEvaluation.vue'
+import StudentScore from '@/views/student/StudentScore.vue'
 import TeacherDashboard from '@/views/teacher/TeacherDashboard.vue'
+import TeacherEvaluation from '@/views/teacher/TeacherEvaluation.vue'
+import TeacherScore from '@/views/teacher/TeacherScore.vue'
 
 const routes = [
   {
@@ -83,9 +87,33 @@ const routes = [
     meta: { requiresAuth: true, role: 2 }
   },
   {
+    path: '/student/evaluation',
+    name: 'StudentEvaluation',
+    component: StudentEvaluation,
+    meta: { requiresAuth: true, role: 2 }
+  },
+  {
+    path: '/student/score',
+    name: 'StudentScore',
+    component: StudentScore,
+    meta: { requiresAuth: true, role: 2 }
+  },
+  {
     path: '/teacher',
     name: 'TeacherDashboard',
     component: TeacherDashboard,
+    meta: { requiresAuth: true, role: 1 }
+  },
+  {
+    path: '/teacher/evaluation',
+    name: 'TeacherEvaluation',
+    component: TeacherEvaluation,
+    meta: { requiresAuth: true, role: 1 }
+  },
+  {
+    path: '/teacher/score',
+    name: 'TeacherScore',
+    component: TeacherScore,
     meta: { requiresAuth: true, role: 1 }
   }
 ]

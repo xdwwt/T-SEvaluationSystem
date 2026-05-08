@@ -20,7 +20,7 @@
       <div class="menu-item" :class="{ active: route.path === '/teacher' }" @click="navigate('/teacher')">首页</div>
       <div class="menu-item" :class="{ active: route.path === '/teacher/score' }" @click="navigate('/teacher/score')">学生成绩</div>
       <div class="menu-item" :class="{ active: route.path === '/teacher/evaluation' }" @click="navigate('/teacher/evaluation')">我的评分</div>
-      <div class="menu-item" :class="{ active: route.path === '/teacher/info' }" @click="navigate('/teacher/info')">个人信息</div>
+      <!-- <div class="menu-item" :class="{ active: route.path === '/teacher/info' }" @click="navigate('/teacher/info')">个人信息</div> -->
     </div>
 
     <!-- 学生菜单 -->

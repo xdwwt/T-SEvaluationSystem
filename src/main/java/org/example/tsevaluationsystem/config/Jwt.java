@@ -1,12 +1,14 @@
 package org.example.tsevaluationsystem.config;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.example.tsevaluationsystem.dto.UserInfo;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Jwt {
 
@@ -30,10 +32,40 @@ public class Jwt {
 
         return Jwts.builder()
                 .subject(userInfo.getUsername())
+                .claim("userId", userInfo.getUserId())
                 .claim("status", userInfo.getStatus())
+                .claim("infoId", userInfo.getInfoId())
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(KEY)
                 .compact();
+    }
+
+    /**
+     * 解析 JWT Token
+     * @param token JWT 字符串
+     * @return Claims
+     */
+    public static Claims parseToken(String token) {
+        return Jwts.parser()
+                .verifyWith(KEY)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    /**
+     * 从 Token 中提取用户信息
+     * @param token JWT 字符串
+     * @return Map 包含 userId, status, infoId, username
+     */
+    public static Map<String, Object> getUserFromToken(String token) {
+        Claims claims = parseToken(token);
+        Map<String, Object> user = new HashMap<>();
+        user.put("username", claims.getSubject());
+        user.put("userId", claims.get("userId"));
+        user.put("status", claims.get("status"));
+        user.put("infoId", claims.get("infoId"));
+        return user;
     }
 }
