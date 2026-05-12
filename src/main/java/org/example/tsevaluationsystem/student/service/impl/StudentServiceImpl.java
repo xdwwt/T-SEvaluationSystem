@@ -2,6 +2,7 @@ package org.example.tsevaluationsystem.student.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.tsevaluationsystem.dto.Result;
+import org.example.tsevaluationsystem.dto.Score;
 import org.example.tsevaluationsystem.dto.TeacherEvaluation;
 import org.example.tsevaluationsystem.student.mapper.StudentMapper;
 import org.example.tsevaluationsystem.student.service.StudentService;
@@ -28,6 +29,19 @@ public class StudentServiceImpl implements StudentService {
         Long teacherId = Long.valueOf(params.get("teacherId").toString());
         Long courseId = Long.valueOf(params.get("courseId").toString());
         String semester = (String) params.get("semester");
+
+        // 校验成绩是否已发放：只有成绩发放后才能评价
+        QueryWrapper<Score> scoreWrapper = new QueryWrapper<>();
+        scoreWrapper.eq("student_id", studentId)
+                .eq("teacher_id", teacherId)
+                .eq("course_id", courseId)
+                .eq("semester", semester)
+                .eq("is_viewable", 1)
+                .eq("is_dele", 0);
+        long scoreCount = studentMapper.selectScoreCount(scoreWrapper);
+        if (scoreCount == 0) {
+            return new Result(0, "教师尚未发放该课程成绩，暂不能评价", null);
+        }
 
         // 防重复提交：检查是否已评价过
         QueryWrapper<TeacherEvaluation> wrapper = new QueryWrapper<>();

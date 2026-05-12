@@ -124,7 +124,6 @@ onMounted(() => {
 <style scoped>
 .evaluation-page {
   padding: 24px;
-  max-width: 1200px;
 }
 
 .page-header {

@@ -59,6 +59,7 @@
             <td>{{ item.courseName }}</td>
             <td>{{ item.semester }}</td>
             <td>
+              <button class="btn-view" @click="handleViewStudents(item)">查看学生</button>
               <button class="btn-edit" @click="handleEditClick(item)">修改</button>
               <button class="btn-delete" @click="handleDeleteClick(item.id)">删除</button>
             </td>
@@ -119,6 +120,47 @@
       :showCancel="false"
       @confirm="showDeleteSuccess = false"
     />
+
+    <!-- 查看学生弹窗 -->
+    <div class="modal" v-if="showStudentModal" @click="handleCloseStudentModal">
+      <div class="modal-content student-modal" @click.stop>
+        <div class="modal-header">
+          <h3>排课学生 - {{ currentArrangement.className }} · {{ currentArrangement.courseName }} · {{ currentArrangement.semester }}</h3>
+          <span class="close-btn" @click="handleCloseStudentModal">x</span>
+        </div>
+        <div class="modal-body">
+          <div v-if="studentLoading" class="loading-text">加载中...</div>
+          <div v-else-if="studentList.length === 0" class="empty-state">
+            <div class="empty-text">该班级暂无学生</div>
+            <div class="empty-subtext">请先在班级管理中为学生分配班级</div>
+          </div>
+          <div v-else class="student-table-wrapper">
+            <table class="student-table">
+              <thead>
+                <tr>
+                  <th>学号</th>
+                  <th>姓名</th>
+                  <th>性别</th>
+                  <th>年级</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="s in studentList" :key="s.id">
+                  <td>{{ s.studentNo }}</td>
+                  <td>{{ s.name }}</td>
+                  <td>{{ s.gender === 1 ? '男' : '女' }}</td>
+                  <td>{{ s.grade }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="student-count">共 {{ studentList.length }} 人</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="handleCloseStudentModal">关闭</button>
+        </div>
+      </div>
+    </div>
 
     <!-- 新增/编辑排课弹窗 -->
     <div class="modal" v-if="showAdd" @click="handleCloseModal">
@@ -188,6 +230,7 @@ import { addArrangementApi, listArrangementApi, updateArrangementApi, deleteArra
 import { allTeacherApi } from '@/api/teacher.js'
 import { allClassApi } from '@/api/class.js'
 import { allCourseApi } from '@/api/course.js'
+import { listClassStudentsApi } from '@/api/classStudent.js'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const showAdd = ref(false)
@@ -201,6 +244,12 @@ const showDeleteConfirm = ref(false)
 const showDeleteSuccess = ref(false)
 const deleteId = ref('')
 const successMsg = ref('')
+
+// 查看学生
+const showStudentModal = ref(false)
+const currentArrangement = ref({})
+const studentList = ref([])
+const studentLoading = ref(false)
 
 // 分页
 const pageNum = ref(1)
@@ -317,6 +366,31 @@ const visiblePages = computed(() => {
   }
   return result
 })
+
+const handleViewStudents = async (item) => {
+  currentArrangement.value = item
+  showStudentModal.value = true
+  studentLoading.value = true
+  try {
+    const res = await listClassStudentsApi(item.classId)
+    if (res.code === 1) {
+      studentList.value = res.data || []
+    } else {
+      studentList.value = []
+    }
+  } catch (error) {
+    console.error('获取学生列表失败', error)
+    studentList.value = []
+  } finally {
+    studentLoading.value = false
+  }
+}
+
+const handleCloseStudentModal = () => {
+  showStudentModal.value = false
+  currentArrangement.value = {}
+  studentList.value = []
+}
 
 const handleDeleteClick = (id) => {
   deleteId.value = id
@@ -565,6 +639,22 @@ onMounted(() => {
   text-align: center;
   color: #999;
   padding: 40px;
+}
+
+.btn-view {
+  padding: 4px 10px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: all 0.15s;
+}
+
+.btn-view:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-edit {
@@ -831,5 +921,61 @@ onMounted(() => {
 .jump-btn:active {
   transform: scale(0.96);
   opacity: 0.9;
+}
+
+/* 查看学生弹窗 */
+.student-modal {
+  width: 700px;
+}
+
+.student-modal .modal-body {
+  max-height: 55vh;
+}
+
+.loading-text {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}
+
+.student-table-wrapper {
+  overflow-x: auto;
+}
+
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.student-table th,
+.student-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.student-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.student-table td {
+  color: #666;
+}
+
+.student-count {
+  text-align: right;
+  padding: 12px 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.empty-subtext {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 6px;
 }
 </style>

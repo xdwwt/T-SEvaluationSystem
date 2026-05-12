@@ -33,8 +33,9 @@
       </div>
 
       <div class="empty-state" v-else>
-        <div class="empty-icon">✓</div>
-        <div class="empty-text">您已完成所有教师评价，暂无待评价教师</div>
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">暂无待评价教师</div>
+        <div class="empty-subtext">教师发放成绩后方可进行评价</div>
       </div>
     </div>
 
@@ -272,7 +273,6 @@ onMounted(() => {
 <style scoped>
 .evaluation-page {
   padding: 24px;
-  max-width: 1200px;
 }
 
 .page-header {
@@ -421,6 +421,12 @@ onMounted(() => {
 
 .empty-text {
   font-size: 14px;
+}
+
+.empty-subtext {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 6px;
 }
 
 /* 表格 */

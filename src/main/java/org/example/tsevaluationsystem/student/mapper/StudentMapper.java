@@ -1,6 +1,8 @@
 package org.example.tsevaluationsystem.student.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -14,7 +16,7 @@ import java.util.Map;
 public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
 
     /**
-     * 查询学生所在班级的授课教师列表（排除已评价的）
+     * 查询学生所在班级的授课教师列表（排除已评价的，且成绩已发放）
      */
     @Select("SELECT " +
             "  ct.id, ct.teacher_id as teacherId, ct.course_id as courseId, ct.semester, " +
@@ -23,6 +25,12 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
             "JOIN tb_class_teacher ct ON cs.class_id = ct.class_id " +
             "JOIN tb_teacher_info t ON ct.teacher_id = t.id " +
             "JOIN tb_course c ON ct.course_id = c.id " +
+            "JOIN tb_score sc ON sc.student_id = cs.student_id " +
+            "  AND sc.teacher_id = ct.teacher_id " +
+            "  AND sc.course_id = ct.course_id " +
+            "  AND sc.semester = ct.semester " +
+            "  AND sc.is_dele = 0 " +
+            "  AND sc.is_viewable = 1 " +
             "WHERE cs.student_id = #{studentId} " +
             "  AND cs.is_dele = 0 " +
             "  AND ct.is_dele = 0 " +
@@ -71,4 +79,10 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
             "  AND s.is_viewable = 1 " +
             "ORDER BY s.create_time DESC")
     List<Map<String, Object>> selectScoreList(@Param("studentId") Long studentId);
+
+    /**
+     * 查询成绩记录数（用于校验成绩是否已发放）
+     */
+    @Select("SELECT COUNT(*) FROM tb_score ${ew.customSqlSegment}")
+    long selectScoreCount(@Param(Constants.WRAPPER) QueryWrapper<Score> wrapper);
 }

@@ -34,7 +34,7 @@ public interface TeacherMapper extends BaseMapper<Score> {
      * 查询教师授课的班级课程列表
      */
     @Select("SELECT " +
-            "  ct.id, ct.class_id as classId, ct.course_id as courseId, ct.semester, " +
+            "  ct.id, CAST(ct.class_id AS CHAR) as classId, CAST(ct.course_id AS CHAR) as courseId, ct.semester, " +
             "  ci.class_name as className, ci.grade, c.course_name as courseName " +
             "FROM tb_class_teacher ct " +
             "JOIN tb_class_info ci ON ct.class_id = ci.id " +

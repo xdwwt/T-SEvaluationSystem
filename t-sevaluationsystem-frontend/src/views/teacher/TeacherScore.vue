@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div class="score-page">
     <div class="page-header">
       <h2 class="page-title">学生成绩</h2>
@@ -52,13 +52,13 @@
               <td>{{ item.studentNo }}</td>
               <td>{{ item.studentName }}</td>
               <td>
-                <input type="number" v-model.number="item.usualScore" class="score-input" min="0" max="100" step="0.01" />
+                <input type="number" v-model.number="item.usualScore" @input="calcScore(item)" class="score-input" min="0" max="100" step="0.01" placeholder="0" />
               </td>
               <td>
-                <input type="number" v-model.number="item.finalScore" class="score-input" min="0" max="100" step="0.01" />
+                <input type="number" v-model.number="item.finalScore" @input="calcScore(item)" class="score-input" min="0" max="100" step="0.01" placeholder="0" />
               </td>
               <td>
-                <input type="number" v-model.number="item.score" class="score-input" min="0" max="100" step="0.01" />
+                <input type="number" v-model.number="item.score" class="score-input" readonly />
               </td>
               <td>
                 <input type="text" v-model="item.comment" class="comment-input" placeholder="请输入评语" />
@@ -75,7 +75,9 @@
       </div>
 
       <div class="empty-state" v-else-if="!loading">
-        <div class="empty-text">该班级暂无学生</div>
+        <div class="empty-text">
+          {{ studentList.length === 0 && originalStudentList.length > 0 ? '该班级所有学生成绩已录入' : '该班级暂无学生' }}
+        </div>
       </div>
     </div>
 
@@ -122,6 +124,16 @@
       </div>
     </div>
   </div>
+
+  <!-- Toast 提示 -->
+  <transition name="toast">
+    <div v-if="toastVisible" class="toast-mask">
+      <div class="toast-box">
+        <div class="toast-icon">&#10003;</div>
+        <div class="toast-text">{{ toastMessage }}</div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -136,9 +148,22 @@ import {
 const classList = ref([])
 const selectedClass = ref('')
 const studentList = ref([])
+const originalStudentList = ref([])
 const scoreList = ref([])
 const loading = ref(false)
 const saving = ref(false)
+const toastVisible = ref(false)
+const toastMessage = ref('')
+let toastTimer = null
+
+const showToast = (msg, duration = 2000) => {
+  toastMessage.value = msg
+  toastVisible.value = true
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toastVisible.value = false
+  }, duration)
+}
 
 const fetchClasses = async () => {
   try {
@@ -156,22 +181,36 @@ const handleClassChange = async () => {
     studentList.value = []
     return
   }
+  console.log('selectedClass:', selectedClass.value)
+  console.log('selectedClass keys:', Object.keys(selectedClass.value))
   loading.value = true
   try {
-    const res = await getTeacherClassStudentsApi({
+    const params = {
       classId: selectedClass.value.classId,
       courseId: selectedClass.value.courseId,
       semester: selectedClass.value.semester
-    })
+    }
+    console.log('请求参数:', params)
+    const res = await getTeacherClassStudentsApi(params)
+    console.log('响应结果:', res)
     if (res.code === 1) {
-      studentList.value = (res.data || []).map(s => ({
-        ...s,
-        usualScore: s.usualScore != null ? parseFloat(s.usualScore) : null,
-        finalScore: s.finalScore != null ? parseFloat(s.finalScore) : null,
-        score: s.score != null ? parseFloat(s.score) : null,
-        comment: s.comment || '',
-        isViewable: s.isViewable ?? 0
-      }))
+      originalStudentList.value = (res.data || []).map(s => {
+        const usualScore = s.usualScore != null ? parseFloat(s.usualScore) : null
+        const finalScore = s.finalScore != null ? parseFloat(s.finalScore) : null
+        const savedScore = s.score != null ? parseFloat(s.score) : null
+        return {
+          ...s,
+          usualScore,
+          finalScore,
+          score: savedScore ?? (usualScore != null && finalScore != null
+            ? Math.round((usualScore * 0.4 + finalScore * 0.6) * 100) / 100
+            : null),
+          comment: s.comment || '',
+          isViewable: s.isViewable ?? 0
+        }
+      })
+      // 上方只显示未录入总评成绩的学生
+      studentList.value = originalStudentList.value.filter(s => s.score === null)
     }
   } catch (error) {
     console.error('获取学生列表失败', error)
@@ -197,17 +236,58 @@ const handleSave = async () => {
     }))
     const res = await submitScoreApi(payload)
     if (res.code === 1) {
-      alert(res.mes || '保存成功')
+      showToast(res.mes || '保存成功')
+
       await fetchScores()
       await handleClassChange()
+
+      // 如果后端没有返回当前班级的记录，手动补充到下方列表
+      const hasCurrent = scoreList.value.some(item =>
+        String(item.classId) === String(selectedClass.value.classId) &&
+        String(item.courseId) === String(selectedClass.value.courseId) &&
+        item.semester === selectedClass.value.semester
+      )
+      if (!hasCurrent) {
+        const savedRecords = payload.map(p => {
+          const stu = originalStudentList.value.find(s => s.studentId === p.studentId)
+          return {
+            id: Date.now() + Math.random(),
+            studentId: p.studentId,
+            studentName: stu?.studentName,
+            studentNo: stu?.studentNo,
+            courseId: p.courseId,
+            courseName: selectedClass.value.courseName,
+            classId: p.classId,
+            className: selectedClass.value.className,
+            semester: p.semester,
+            usualScore: p.usualScore,
+            finalScore: p.finalScore,
+            score: p.score,
+            comment: p.comment,
+            isViewable: p.isViewable,
+            createTime: new Date().toISOString()
+          }
+        })
+        scoreList.value = [...savedRecords, ...scoreList.value]
+      }
     } else {
-      alert(res.mes || '保存失败')
+      showToast(res.mes || '保存失败')
     }
   } catch (error) {
     console.error('保存成绩失败', error)
-    alert('保存失败')
+    showToast('保存失败')
   } finally {
     saving.value = false
+  }
+}
+
+const calcScore = (item) => {
+  const usual = parseFloat(item.usualScore)
+  const final = parseFloat(item.finalScore)
+  if (!isNaN(usual) && !isNaN(final)) {
+    item.score = Math.round((usual * 0.4 + final * 0.6) * 100) / 100
+  } else {
+    item.score = null
   }
 }
 
@@ -231,7 +311,6 @@ onMounted(() => {
 <style scoped>
 .score-page {
   padding: 24px;
-  max-width: 1200px;
 }
 
 .page-header {
@@ -393,5 +472,55 @@ onMounted(() => {
 
 .empty-text {
   font-size: 14px;
+}
+
+/* Toast 样式 */
+.toast-mask {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.toast-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+}
+
+.toast-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 24px;
+  line-height: 48px;
+  text-align: center;
+}
+
+.toast-text {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 动画 */
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
 }
 </style>

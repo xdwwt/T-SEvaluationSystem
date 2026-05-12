@@ -71,7 +71,6 @@ const currentDate = computed(() => {
 <style scoped>
 .dashboard-page {
   padding: 24px;
-  max-width: 1200px;
 }
 
 .welcome-bar {
