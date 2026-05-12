@@ -75,9 +75,7 @@
       </div>
 
       <div class="empty-state" v-else-if="!loading">
-        <div class="empty-text">
-          {{ studentList.length === 0 && originalStudentList.length > 0 ? '该班级所有学生成绩已录入' : '该班级暂无学生' }}
-        </div>
+        <div class="empty-text">该班级暂无学生</div>
       </div>
     </div>
 
@@ -179,10 +177,9 @@ const fetchClasses = async () => {
 const handleClassChange = async () => {
   if (!selectedClass.value) {
     studentList.value = []
+    originalStudentList.value = []
     return
   }
-  console.log('selectedClass:', selectedClass.value)
-  console.log('selectedClass keys:', Object.keys(selectedClass.value))
   loading.value = true
   try {
     const params = {
@@ -190,9 +187,7 @@ const handleClassChange = async () => {
       courseId: selectedClass.value.courseId,
       semester: selectedClass.value.semester
     }
-    console.log('请求参数:', params)
     const res = await getTeacherClassStudentsApi(params)
-    console.log('响应结果:', res)
     if (res.code === 1) {
       originalStudentList.value = (res.data || []).map(s => {
         const usualScore = s.usualScore != null ? parseFloat(s.usualScore) : null
@@ -206,11 +201,38 @@ const handleClassChange = async () => {
             ? Math.round((usualScore * 0.4 + finalScore * 0.6) * 100) / 100
             : null),
           comment: s.comment || '',
-          isViewable: s.isViewable ?? 0
+          isViewable: s.isViewable ?? 1
         }
       })
-      // 上方只显示未录入总评成绩的学生
-      studentList.value = originalStudentList.value.filter(s => s.score === null)
+      // 上方显示所有学生（已录入的也可以修改）
+      studentList.value = originalStudentList.value
+
+      // 将已录入的学生同步到下方列表
+      const entered = originalStudentList.value.filter(s => s.score !== null)
+      const newRecords = entered.map(s => ({
+        id: s.scoreId || Date.now() + Math.random(),
+        studentId: s.studentId,
+        studentName: s.studentName,
+        studentNo: s.studentNo,
+        courseId: selectedClass.value.courseId,
+        courseName: selectedClass.value.courseName,
+        classId: selectedClass.value.classId,
+        className: selectedClass.value.className,
+        semester: selectedClass.value.semester,
+        usualScore: s.usualScore,
+        finalScore: s.finalScore,
+        score: s.score,
+        comment: s.comment,
+        isViewable: s.isViewable,
+        createTime: new Date().toISOString()
+      }))
+      // 移除同班级旧记录避免重复
+      scoreList.value = scoreList.value.filter(item => !(
+        String(item.classId) === String(selectedClass.value.classId) &&
+        String(item.courseId) === String(selectedClass.value.courseId) &&
+        item.semester === selectedClass.value.semester
+      ))
+      scoreList.value = [...newRecords, ...scoreList.value]
     }
   } catch (error) {
     console.error('获取学生列表失败', error)
@@ -295,7 +317,17 @@ const fetchScores = async () => {
   try {
     const res = await getTeacherScoreListApi()
     if (res.code === 1) {
-      scoreList.value = res.data || []
+      const fetched = res.data || []
+      // 有数据才合并，避免后端返回空时清空现有记录
+      if (fetched.length > 0) {
+        const fetchedKeys = new Set(fetched.map(item =>
+          `${item.studentId}-${item.courseId}-${item.classId}-${item.semester}`
+        ))
+        scoreList.value = scoreList.value.filter(item => !fetchedKeys.has(
+          `${item.studentId}-${item.courseId}-${item.classId}-${item.semester}`
+        ))
+        scoreList.value = [...fetched, ...scoreList.value]
+      }
     }
   } catch (error) {
     console.error('获取成绩列表失败', error)

@@ -4,6 +4,7 @@
     <div class="page-header">
       <h2 class="page-title">我的成绩</h2>
       <p class="page-desc">查看各课程的成绩详情</p>
+      <button class="btn-refresh" @click="fetchScores">刷新</button>
     </div>
 
     <!-- 成绩统计卡片 -->
@@ -60,8 +61,12 @@
         </table>
       </div>
 
-      <div class="empty-state" v-else>
+      <div class="empty-state" v-else-if="!loading">
         <div class="empty-text">暂无成绩记录</div>
+        <div class="empty-subtext" v-if="errorMsg">{{ errorMsg }}</div>
+      </div>
+      <div class="empty-state" v-else>
+        <div class="empty-text">加载中...</div>
       </div>
     </div>
   </div>
@@ -72,6 +77,8 @@ import { ref, computed, onMounted } from 'vue'
 import { getStudentScoreListApi } from '@/api/score.js'
 
 const scoreList = ref([])
+const loading = ref(false)
+const errorMsg = ref('')
 
 const avgScore = computed(() => {
   const scores = scoreList.value.filter(s => s.score != null).map(s => parseFloat(s.score))
@@ -86,13 +93,24 @@ const maxScore = computed(() => {
 })
 
 const fetchScores = async () => {
+  loading.value = true
+  errorMsg.value = ''
   try {
     const res = await getStudentScoreListApi()
+    console.log('成绩列表响应:', res)
     if (res.code === 1) {
       scoreList.value = res.data || []
+      if (scoreList.value.length === 0) {
+        errorMsg.value = '教师尚未发放成绩，或成绩暂不可查看'
+      }
+    } else {
+      errorMsg.value = res.mes || '获取成绩失败'
     }
   } catch (error) {
     console.error('获取成绩列表失败', error)
+    errorMsg.value = '网络异常，请稍后重试'
+  } finally {
+    loading.value = false
   }
 }
 
@@ -250,5 +268,22 @@ onMounted(() => {
 
 .empty-text {
   font-size: 14px;
+}
+
+.empty-subtext {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 6px;
+}
+
+.btn-refresh {
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
 }
 </style>

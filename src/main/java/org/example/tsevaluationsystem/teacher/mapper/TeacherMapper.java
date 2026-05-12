@@ -16,10 +16,10 @@ public interface TeacherMapper extends BaseMapper<Score> {
      * 查询教师收到的评价列表
      */
     @Select("SELECT " +
-            "  te.id, te.student_id as studentId, te.course_id as courseId, te.semester, " +
+            "  CAST(te.id AS CHAR) as id, CAST(te.student_id AS CHAR) as studentId, CAST(te.course_id AS CHAR) as courseId, te.semester, " +
             "  te.teaching_score as teachingScore, te.content_score as contentScore, " +
             "  te.method_score as methodScore, te.effect_score as effectScore, te.total_score as totalScore, " +
-            "  te.create_time as createTime, " +
+            "  DATE_FORMAT(te.create_time, '%Y-%m-%d %H:%i:%s') as createTime, " +
             "  s.name as studentName, c.course_name as courseName " +
             "FROM tb_teacher_evaluation te " +
             "JOIN tb_student_info s ON te.student_id = s.id " +
@@ -50,8 +50,8 @@ public interface TeacherMapper extends BaseMapper<Score> {
      * 查询某班级课程的学生列表（带已有成绩）
      */
     @Select("SELECT " +
-            "  s.id as studentId, s.student_no as studentNo, s.name as studentName, " +
-            "  sc.id as scoreId, sc.usual_score as usualScore, sc.final_score as finalScore, " +
+            "  CAST(s.id AS CHAR) as studentId, s.student_no as studentNo, s.name as studentName, " +
+            "  CAST(sc.id AS CHAR) as scoreId, sc.usual_score as usualScore, sc.final_score as finalScore, " +
             "  sc.score, sc.comment, sc.is_viewable as isViewable " +
             "FROM tb_class_student cs " +
             "JOIN tb_student_info s ON cs.student_id = s.id " +
@@ -74,9 +74,9 @@ public interface TeacherMapper extends BaseMapper<Score> {
      * 查询教师已录入的成绩列表
      */
     @Select("SELECT " +
-            "  sc.id, sc.student_id as studentId, sc.course_id as courseId, sc.class_id as classId, " +
+            "  CAST(sc.id AS CHAR) as id, CAST(sc.student_id AS CHAR) as studentId, CAST(sc.course_id AS CHAR) as courseId, CAST(sc.class_id AS CHAR) as classId, " +
             "  sc.semester, sc.usual_score as usualScore, sc.final_score as finalScore, " +
-            "  sc.score, sc.comment, sc.is_viewable as isViewable, sc.create_time as createTime, " +
+            "  sc.score, sc.comment, sc.is_viewable as isViewable, DATE_FORMAT(sc.create_time, '%Y-%m-%d %H:%i:%s') as createTime, " +
             "  s.name as studentName, s.student_no as studentNo, " +
             "  c.course_name as courseName, ci.class_name as className " +
             "FROM tb_score sc " +

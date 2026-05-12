@@ -19,7 +19,7 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
      * 查询学生所在班级的授课教师列表（排除已评价的，且成绩已发放）
      */
     @Select("SELECT " +
-            "  ct.id, ct.teacher_id as teacherId, ct.course_id as courseId, ct.semester, " +
+            "  CAST(ct.id AS CHAR) as id, CAST(ct.teacher_id AS CHAR) as teacherId, CAST(ct.course_id AS CHAR) as courseId, ct.semester, " +
             "  t.name as teacherName, c.course_name as courseName " +
             "FROM tb_class_student cs " +
             "JOIN tb_class_teacher ct ON cs.class_id = ct.class_id " +
@@ -50,10 +50,10 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
      * 查询学生已提交的评价记录
      */
     @Select("SELECT " +
-            "  te.id, te.teacher_id as teacherId, te.student_id as studentId, te.course_id as courseId, " +
+            "  CAST(te.id AS CHAR) as id, CAST(te.teacher_id AS CHAR) as teacherId, CAST(te.student_id AS CHAR) as studentId, CAST(te.course_id AS CHAR) as courseId, " +
             "  te.semester, te.teaching_score as teachingScore, te.content_score as contentScore, " +
             "  te.method_score as methodScore, te.effect_score as effectScore, te.total_score as totalScore, " +
-            "  te.create_time as createTime, " +
+            "  DATE_FORMAT(te.create_time, '%Y-%m-%d %H:%i:%s') as createTime, " +
             "  t.name as teacherName, c.course_name as courseName " +
             "FROM tb_teacher_evaluation te " +
             "JOIN tb_teacher_info t ON te.teacher_id = t.id " +
@@ -67,9 +67,9 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
      * 查询学生成绩列表
      */
     @Select("SELECT " +
-            "  s.id, s.student_id as studentId, s.course_id as courseId, s.teacher_id as teacherId, " +
-            "  s.class_id as classId, s.semester, s.usual_score as usualScore, s.final_score as finalScore, " +
-            "  s.score, s.comment, s.is_viewable as isViewable, s.create_time as createTime, " +
+            "  CAST(s.id AS CHAR) as id, CAST(s.student_id AS CHAR) as studentId, CAST(s.course_id AS CHAR) as courseId, CAST(s.teacher_id AS CHAR) as teacherId, " +
+            "  CAST(s.class_id AS CHAR) as classId, s.semester, s.usual_score as usualScore, s.final_score as finalScore, " +
+            "  s.score, s.comment, s.is_viewable as isViewable, DATE_FORMAT(s.create_time, '%Y-%m-%d %H:%i:%s') as createTime, " +
             "  c.course_name as courseName, t.name as teacherName " +
             "FROM tb_score s " +
             "JOIN tb_course c ON s.course_id = c.id " +
