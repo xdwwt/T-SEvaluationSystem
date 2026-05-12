@@ -19,7 +19,7 @@ public interface TeacherMapper extends BaseMapper<Score> {
             "  CAST(te.id AS CHAR) as id, CAST(te.student_id AS CHAR) as studentId, CAST(te.course_id AS CHAR) as courseId, te.semester, " +
             "  te.teaching_score as teachingScore, te.content_score as contentScore, " +
             "  te.method_score as methodScore, te.effect_score as effectScore, te.total_score as totalScore, " +
-            "  DATE_FORMAT(te.create_time, '%Y-%m-%d %H:%i:%s') as createTime, " +
+            "  te.create_time as createTime, " +
             "  s.name as studentName, c.course_name as courseName " +
             "FROM tb_teacher_evaluation te " +
             "JOIN tb_student_info s ON te.student_id = s.id " +
@@ -76,7 +76,7 @@ public interface TeacherMapper extends BaseMapper<Score> {
     @Select("SELECT " +
             "  CAST(sc.id AS CHAR) as id, CAST(sc.student_id AS CHAR) as studentId, CAST(sc.course_id AS CHAR) as courseId, CAST(sc.class_id AS CHAR) as classId, " +
             "  sc.semester, sc.usual_score as usualScore, sc.final_score as finalScore, " +
-            "  sc.score, sc.comment, sc.is_viewable as isViewable, DATE_FORMAT(sc.create_time, '%Y-%m-%d %H:%i:%s') as createTime, " +
+            "  sc.score, sc.comment, sc.is_viewable as isViewable, sc.create_time as createTime, " +
             "  s.name as studentName, s.student_no as studentNo, " +
             "  c.course_name as courseName, ci.class_name as className " +
             "FROM tb_score sc " +
