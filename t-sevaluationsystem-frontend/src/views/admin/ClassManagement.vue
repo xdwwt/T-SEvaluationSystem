@@ -481,9 +481,20 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
+    // 提交时过滤掉departmentId，因为班级表只存储majorId
+    const submitData = {
+      className: form.value.className,
+      grade: form.value.grade,
+      majorId: form.value.majorId
+    }
+    // 编辑时需要带上id
+    if (isEdit.value && form.value.id) {
+      submitData.id = form.value.id
+    }
+    
     const res = isEdit.value
-      ? await updateClassApi(form.value)
-      : await addClassApi(form.value)
+      ? await updateClassApi(submitData)
+      : await addClassApi(submitData)
     if (res.code === 1) {
       successMsg.value = isEdit.value ? '修改成功' : '新增成功'
       showSuccess.value = true

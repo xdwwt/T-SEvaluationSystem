@@ -554,9 +554,25 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
+    // 提交时过滤掉departmentId，因为学生表只存储majorId
+    const submitData = {
+      studentNo: form.value.studentNo,
+      name: form.value.name,
+      gender: form.value.gender,
+      grade: form.value.grade,
+      majorId: form.value.majorId,
+      classId: form.value.classId,
+      phone: form.value.phone,
+      email: form.value.email
+    }
+    // 编辑时需要带上id
+    if (isEdit.value && form.value.id) {
+      submitData.id = form.value.id
+    }
+    
     const res = isEdit.value
-      ? await updateStudentApi(form.value)
-      : await addStudentApi(form.value)
+      ? await updateStudentApi(submitData)
+      : await addStudentApi(submitData)
     if (res.code === 1) {
       successMsg.value = isEdit.value ? '修改成功' : '新增成功'
       showSuccess.value = true
