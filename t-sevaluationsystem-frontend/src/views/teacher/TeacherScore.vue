@@ -44,7 +44,6 @@
               <th>期末分</th>
               <th>总评成绩</th>
               <th>评语</th>
-              <th>允许查看</th>
             </tr>
           </thead>
           <tbody>
@@ -62,12 +61,6 @@
               </td>
               <td>
                 <input type="text" v-model="item.comment" class="comment-input" placeholder="请输入评语" />
-              </td>
-              <td>
-                <label class="toggle">
-                  <input type="checkbox" v-model="item.isViewable" :true-value="1" :false-value="0" />
-                  <span class="toggle-label">{{ item.isViewable === 1 ? '是' : '否' }}</span>
-                </label>
               </td>
             </tr>
           </tbody>
@@ -98,7 +91,6 @@
               <th>期末分</th>
               <th>总评</th>
               <th>评语</th>
-              <th>可查看</th>
             </tr>
           </thead>
           <tbody>
@@ -111,7 +103,6 @@
               <td>{{ item.finalScore ?? '-' }}</td>
               <td><strong>{{ item.score ?? '-' }}</strong></td>
               <td>{{ item.comment || '-' }}</td>
-              <td>{{ item.isViewable === 1 ? '是' : '否' }}</td>
             </tr>
           </tbody>
         </table>
@@ -200,8 +191,7 @@ const handleClassChange = async () => {
           score: savedScore ?? (usualScore != null && finalScore != null
             ? Math.round((usualScore * 0.4 + finalScore * 0.6) * 100) / 100
             : null),
-          comment: s.comment || '',
-          isViewable: s.isViewable ?? 1
+          comment: s.comment || ''
         }
       })
       // 上方显示所有学生（已录入的也可以修改）
@@ -223,7 +213,6 @@ const handleClassChange = async () => {
         finalScore: s.finalScore,
         score: s.score,
         comment: s.comment,
-        isViewable: s.isViewable,
         createTime: new Date().toISOString()
       }))
       // 移除同班级旧记录避免重复
@@ -253,8 +242,7 @@ const handleSave = async () => {
       usualScore: s.usualScore === '' ? null : s.usualScore,
       finalScore: s.finalScore === '' ? null : s.finalScore,
       score: s.score === '' ? null : s.score,
-      comment: s.comment,
-      isViewable: s.isViewable
+      comment: s.comment
     }))
     const res = await submitScoreApi(payload)
     if (res.code === 1) {
@@ -286,7 +274,6 @@ const handleSave = async () => {
             finalScore: p.finalScore,
             score: p.score,
             comment: p.comment,
-            isViewable: p.isViewable,
             createTime: new Date().toISOString()
           }
         })

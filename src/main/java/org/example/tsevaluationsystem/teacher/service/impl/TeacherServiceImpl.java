@@ -62,7 +62,6 @@ public class TeacherServiceImpl implements TeacherService {
             BigDecimal score = (scoreObj != null && !scoreObj.toString().trim().isEmpty())
                     ? new BigDecimal(scoreObj.toString()) : null;
             String comment = item.get("comment") != null ? (String) item.get("comment") : null;
-            Integer isViewable = item.get("isViewable") != null ? Integer.valueOf(item.get("isViewable").toString()) : 0;
 
             // 查询是否已有成绩记录
             QueryWrapper<Score> wrapper = new QueryWrapper<>();
@@ -79,10 +78,9 @@ public class TeacherServiceImpl implements TeacherService {
                 existing.setFinalScore(finalScore);
                 existing.setScore(score);
                 existing.setComment(comment);
-                existing.setIsViewable(isViewable);
                 teacherMapper.updateById(existing);
             } else {
-                // 新增
+                // 新增，默认成绩不可查看，学生评价后才可查看
                 Score newScore = new Score();
                 newScore.setStudentId(studentId);
                 newScore.setCourseId(courseId);
@@ -93,7 +91,7 @@ public class TeacherServiceImpl implements TeacherService {
                 newScore.setFinalScore(finalScore);
                 newScore.setScore(score);
                 newScore.setComment(comment);
-                newScore.setIsViewable(isViewable);
+                newScore.setIsViewable(0);
                 teacherMapper.insert(newScore);
             }
             successCount++;

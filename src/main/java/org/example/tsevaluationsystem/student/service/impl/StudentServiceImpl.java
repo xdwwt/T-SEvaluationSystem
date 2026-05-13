@@ -30,17 +30,16 @@ public class StudentServiceImpl implements StudentService {
         Long courseId = Long.valueOf(params.get("courseId").toString());
         String semester = (String) params.get("semester");
 
-        // 校验成绩是否已发放：只有成绩发放后才能评价
+        // 校验成绩是否已录入：只有成绩录入后才能评价
         QueryWrapper<Score> scoreWrapper = new QueryWrapper<>();
         scoreWrapper.eq("student_id", studentId)
                 .eq("teacher_id", teacherId)
                 .eq("course_id", courseId)
                 .eq("semester", semester)
-                .eq("is_viewable", 1)
                 .eq("is_dele", 0);
         long scoreCount = studentMapper.selectScoreCount(scoreWrapper);
         if (scoreCount == 0) {
-            return new Result(0, "教师尚未发放该课程成绩，暂不能评价", null);
+            return new Result(0, "教师尚未录入该课程成绩，暂不能评价", null);
         }
 
         // 防重复提交：检查是否已评价过
@@ -81,6 +80,8 @@ public class StudentServiceImpl implements StudentService {
 
         int rows = studentMapper.insert(evaluation);
         if (rows > 0) {
+            // 评价成功后，将该课程成绩设为可查看
+            studentMapper.updateScoreViewable(studentId, teacherId, courseId, semester);
             return new Result(1, "评价提交成功", null);
         }
         return new Result(0, "评价提交失败", null);

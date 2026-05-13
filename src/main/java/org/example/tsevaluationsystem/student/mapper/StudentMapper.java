@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.example.tsevaluationsystem.dto.Score;
 import org.example.tsevaluationsystem.dto.TeacherEvaluation;
 
@@ -30,7 +31,6 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
             "  AND sc.course_id = ct.course_id " +
             "  AND sc.semester = ct.semester " +
             "  AND sc.is_dele = 0 " +
-            "  AND sc.is_viewable = 1 " +
             "WHERE cs.student_id = #{studentId} " +
             "  AND cs.is_dele = 0 " +
             "  AND ct.is_dele = 0 " +
@@ -45,6 +45,20 @@ public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
             "      AND te.is_dele = 0" +
             "  )")
     List<Map<String, Object>> selectTeachersToEvaluate(@Param("studentId") Long studentId);
+
+    /**
+     * 学生评价后，将对应成绩设为可查看
+     */
+    @Update("UPDATE tb_score SET is_viewable = 1 " +
+            "WHERE student_id = #{studentId} " +
+            "  AND teacher_id = #{teacherId} " +
+            "  AND course_id = #{courseId} " +
+            "  AND semester = #{semester} " +
+            "  AND is_dele = 0")
+    int updateScoreViewable(@Param("studentId") Long studentId,
+                            @Param("teacherId") Long teacherId,
+                            @Param("courseId") Long courseId,
+                            @Param("semester") String semester);
 
     /**
      * 查询学生已提交的评价记录
