@@ -7,3 +7,11 @@ export const loginApi = (username, password) => {
     params: { userId: username, password }
   })
 }
+
+export const changePasswordApi = (oldPassword, newPassword) => {
+  return request({
+    url: '/main/password/change',
+    method: 'POST',
+    params: { oldPassword, newPassword }
+  })
+}
