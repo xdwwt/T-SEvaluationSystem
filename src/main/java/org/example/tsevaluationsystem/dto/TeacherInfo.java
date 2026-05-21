@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * 教师信息实体类
+ */
 @Data
 @TableName("tb_teacher_info")
 public class TeacherInfo {

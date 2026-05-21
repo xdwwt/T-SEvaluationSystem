@@ -3,8 +3,16 @@ package org.example.tsevaluationsystem.common.login.service;
 import org.example.tsevaluationsystem.dto.UserInfo;
 import org.example.tsevaluationsystem.dto.Result;
 
+/**
+ * 登录业务接口
+ */
 public interface LoginService {
-    //登录接口
+
+   /**
+    * 用户登录
+    * @param user 用户信息（包含userId和password）
+    * @return 登录结果（携带JWT Token）
+    */
    Result login(UserInfo user);
 
    /**

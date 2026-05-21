@@ -10,12 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+/**
+ * 登录业务实现类
+ */
 @Service
 public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private LoginMapper loginMapper;
 
+    /**
+     * 用户登录
+     * @param user 用户信息（包含userId和password）
+     * @return 登录结果（携带JWT Token）
+     */
     @Override
     public Result login(UserInfo user) {
         UserInfo userInfo = loginMapper.selectUserLogin(user);
@@ -26,6 +34,13 @@ public class LoginServiceImpl implements LoginService {
         return new Result(1, "success", jwt);
     }
 
+    /**
+     * 修改用户密码
+     * @param userId 用户账号
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return 修改结果
+     */
     @Override
     public Result changePassword(String userId, String oldPassword, String newPassword) {
         // 校验旧密码

@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 排课管理服务实现类
+ */
 @Service
 public class ArrangementManagementServiceImpl implements ArrangementManagementService {
 
@@ -34,6 +37,11 @@ public class ArrangementManagementServiceImpl implements ArrangementManagementSe
     @Autowired
     private TeacherManagementMapper teacherManagementMapper;
 
+    /**
+     * 新增排课记录
+     * @param classTeacher 排课信息
+     * @return 操作结果
+     */
     @Override
     public Result insert(ClassTeacher classTeacher) {
         QueryWrapper<ClassTeacher> wrapper = new QueryWrapper<>();
@@ -51,6 +59,11 @@ public class ArrangementManagementServiceImpl implements ArrangementManagementSe
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询排课列表（分页）
+     * @param params 查询参数
+     * @return 排课列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -131,12 +144,22 @@ public class ArrangementManagementServiceImpl implements ArrangementManagementSe
         return new Result(1, "success", result);
     }
 
+    /**
+     * 编辑排课记录
+     * @param classTeacher 排课信息
+     * @return 操作结果
+     */
     @Override
     public Result update(ClassTeacher classTeacher) {
         arrangementManagementMapper.updateById(classTeacher);
         return new Result(1, "success", null);
     }
 
+    /**
+     * 删除排课记录（逻辑删除）
+     * @param id 排课ID
+     * @return 操作结果
+     */
     @Override
     public Result delete(Long id) {
         ClassTeacher classTeacher = arrangementManagementMapper.selectById(id);

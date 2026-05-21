@@ -8,6 +8,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 院系信息实体类
+ */
 @Data
 @TableName("tb_department")
 public class Department {

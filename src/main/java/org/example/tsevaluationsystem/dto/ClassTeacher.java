@@ -9,6 +9,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 班级教师排课实体类
+ */
 @Data
 @TableName("tb_class_teacher")
 public class ClassTeacher {

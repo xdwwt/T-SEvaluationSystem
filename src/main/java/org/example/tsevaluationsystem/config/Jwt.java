@@ -10,6 +10,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JWT配置类
+ * <p>负责JWT Token的生成与解析</p>
+ */
 public class Jwt {
 
     // JWT 密钥（建议使用更复杂的密钥，可以从配置文件读取）

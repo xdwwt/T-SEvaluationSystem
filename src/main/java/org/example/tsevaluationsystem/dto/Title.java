@@ -8,6 +8,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 职称信息实体类
+ */
 @Data
 @TableName("tb_title")
 public class Title {

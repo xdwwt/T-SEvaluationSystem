@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 专业管理服务实现类
+ */
 @Service
 public class MajorManagementServiceImpl implements MajorManagementService {
 
@@ -26,6 +29,11 @@ public class MajorManagementServiceImpl implements MajorManagementService {
     @Autowired
     private DepartmentManagementMapper departmentManagementMapper;
 
+    /**
+     * 新增专业
+     * @param major 专业信息
+     * @return 操作结果
+     */
     @Override
     public Result insert(Major major) {
         if (major.getDepartmentId() == null) {
@@ -42,6 +50,11 @@ public class MajorManagementServiceImpl implements MajorManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询专业列表（分页）
+     * @param params 查询参数
+     * @return 专业列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -78,6 +91,11 @@ public class MajorManagementServiceImpl implements MajorManagementService {
         return new Result(1, "success", result);
     }
 
+    /**
+     * 编辑专业
+     * @param major 专业信息
+     * @return 操作结果
+     */
     @Override
     public Result update(Major major) {
         Major exist = majorManagementMapper.selectById(major.getId());
@@ -88,6 +106,11 @@ public class MajorManagementServiceImpl implements MajorManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 删除专业（逻辑删除）
+     * @param id 专业ID
+     * @return 操作结果
+     */
     @Override
     public Result delete(Long id) {
         Major major = majorManagementMapper.selectById(id);
@@ -99,6 +122,11 @@ public class MajorManagementServiceImpl implements MajorManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询所有专业
+     * @param params 可选查询参数
+     * @return 专业列表
+     */
     @Override
     public Result listAll(Map<String, Object> params) {
         QueryWrapper<Major> wrapper = new QueryWrapper<>();

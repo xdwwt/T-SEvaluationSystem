@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 管理员仪表盘控制器
+ * <p>提供系统各类数据统计接口</p>
+ */
 @RestController
 @RequestMapping("/admin/dashboard")
 public class AdminDashboardController {
@@ -32,6 +36,10 @@ public class AdminDashboardController {
     @Autowired
     private TitleManagementMapper titleManagementMapper;
 
+    /**
+     * 获取系统统计数据
+     * @return 各类数量统计
+     */
     @PostMapping("/stats")
     public Result stats() {
         Map<String, Object> data = new HashMap<>();

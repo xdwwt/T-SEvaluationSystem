@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 课程信息实体类
+ */
 @Data
 @TableName("tb_course")
 public class Course {

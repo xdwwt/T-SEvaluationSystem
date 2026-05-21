@@ -55,12 +55,18 @@ public class TeacherManagementController {
 
     /**
      * 编辑教师
+     * @param teacherInfo 教师信息
+     * @return 操作结果
      */
     @PostMapping("/update")
     public Result update(@RequestBody TeacherInfo teacherInfo){
         return teacherManagementService.update(teacherInfo);
     }
 
+    /**
+     * 查询所有教师
+     * @return 教师列表
+     */
     @PostMapping("/all")
     public Result all(){
         return teacherManagementService.listAll();

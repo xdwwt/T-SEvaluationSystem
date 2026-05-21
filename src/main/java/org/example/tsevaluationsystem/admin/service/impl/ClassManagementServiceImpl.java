@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 班级管理服务实现类
+ */
 @Service
 public class ClassManagementServiceImpl implements ClassManagementService {
 
@@ -35,6 +38,11 @@ public class ClassManagementServiceImpl implements ClassManagementService {
     @Autowired
     private DepartmentManagementMapper departmentManagementMapper;
 
+    /**
+     * 新增班级
+     * @param classInfo 班级信息
+     * @return 操作结果
+     */
     @Override
     public Result insert(ClassInfo classInfo) {
         classInfo.setId(IdWorker.getId());
@@ -42,6 +50,11 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询班级列表（分页）
+     * @param params 查询参数
+     * @return 班级列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -102,12 +115,21 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         return new Result(1, "success", result);
     }
 
+    /**
+     * 编辑班级
+     * @param classInfo 班级信息
+     * @return 操作结果
+     */
     @Override
     public Result update(ClassInfo classInfo) {
         classManagementMapper.updateById(classInfo);
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询所有班级
+     * @return 班级列表
+     */
     @Override
     public Result listAll() {
         QueryWrapper<ClassInfo> wrapper = new QueryWrapper<>();
@@ -117,6 +139,11 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         return new Result(1, "success", list);
     }
 
+    /**
+     * 删除班级（逻辑删除）
+     * @param id 班级ID
+     * @return 操作结果
+     */
     @Override
     public Result delete(Long id) {
         ClassInfo classInfo = classManagementMapper.selectById(id);
@@ -128,18 +155,33 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询班级学生列表
+     * @param classId 班级ID
+     * @return 学生列表
+     */
     @Override
     public Result listClassStudents(Long classId) {
         List<Map<String, Object>> list = classStudentMapper.selectStudentsByClassId(classId);
         return new Result(1, "success", list);
     }
 
+    /**
+     * 查询未分配班级的学生
+     * @return 未分配学生列表
+     */
     @Override
     public Result listUnassignedStudents() {
         List<Map<String, Object>> list = classStudentMapper.selectUnassignedStudents();
         return new Result(1, "success", list);
     }
 
+    /**
+     * 将学生加入班级
+     * @param classId 班级ID
+     * @param studentId 学生ID
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result addStudentToClass(Long classId, Long studentId) {
@@ -164,6 +206,11 @@ public class ClassManagementServiceImpl implements ClassManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 将学生移出班级
+     * @param id 班级学生关联ID
+     * @return 操作结果
+     */
     @Override
     public Result removeStudentFromClass(Long id) {
         ClassStudent cs = classStudentMapper.selectById(id);

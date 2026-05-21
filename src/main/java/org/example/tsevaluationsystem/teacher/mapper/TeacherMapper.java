@@ -9,6 +9,9 @@ import org.example.tsevaluationsystem.dto.Score;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 教师数据访问层
+ */
 @Mapper
 public interface TeacherMapper extends BaseMapper<Score> {
 

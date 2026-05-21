@@ -8,6 +8,9 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
+/**
+ * 班级信息实体类
+ */
 @Data
 @TableName("tb_class_info")
 public class ClassInfo {

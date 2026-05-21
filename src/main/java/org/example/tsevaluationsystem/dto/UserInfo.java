@@ -8,6 +8,9 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
+/**
+ * 用户信息实体类（登录账号）
+ */
 @Data
 @TableName("tb_user_info")
 public class UserInfo {

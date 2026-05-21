@@ -13,30 +13,58 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 教师业务实现类
+ */
 @Service
 public class TeacherServiceImpl implements TeacherService {
 
     @Autowired
     private TeacherMapper teacherMapper;
 
+    /**
+     * 查询教师收到的评价列表
+     * @param teacherId 教师ID
+     * @return 评价列表
+     */
     @Override
     public Result getEvaluationList(Long teacherId) {
         List<Map<String, Object>> list = teacherMapper.selectEvaluationList(teacherId);
         return new Result(1, "success", list);
     }
 
+    /**
+     * 查询教师授课的班级课程列表
+     * @param teacherId 教师ID
+     * @return 班级课程列表
+     */
     @Override
     public Result getTeachingClasses(Long teacherId) {
         List<Map<String, Object>> list = teacherMapper.selectTeachingClasses(teacherId);
         return new Result(1, "success", list);
     }
 
+    /**
+     * 查询某班级课程的学生列表（带已有成绩）
+     * @param teacherId 教师ID
+     * @param classId 班级ID
+     * @param courseId 课程ID
+     * @param semester 学期
+     * @return 学生列表
+     */
     @Override
     public Result getClassStudentsWithScore(Long teacherId, Long classId, Long courseId, String semester) {
         List<Map<String, Object>> list = teacherMapper.selectClassStudentsWithScore(teacherId, classId, courseId, semester);
         return new Result(1, "success", list);
     }
 
+    /**
+     * 批量提交/更新学生成绩
+     * <p>新增成绩时默认 is_viewable = 0，学生评价后才可查看</p>
+     * @param teacherId 教师ID
+     * @param scoreList 成绩列表
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result submitScores(Long teacherId, List<Map<String, Object>> scoreList) {
@@ -100,6 +128,11 @@ public class TeacherServiceImpl implements TeacherService {
         return new Result(1, "成功录入 " + successCount + " 条成绩", null);
     }
 
+    /**
+     * 查询教师已录入的成绩列表
+     * @param teacherId 教师ID
+     * @return 成绩列表
+     */
     @Override
     public Result getScoreList(Long teacherId) {
         List<Map<String, Object>> list = teacherMapper.selectScoreList(teacherId);

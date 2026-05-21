@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 学生管理服务实现类
+ */
 @Service
 public class StudentManagementServiceImpl implements StudentManagementService {
 
@@ -39,6 +42,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
     @Autowired
     private ClassManagementMapper classManagementMapper;
 
+    /**
+     * 新增学生（同时创建登录账号和班级关联）
+     * @param studentInfo 学生信息
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result insert(StudentInfo studentInfo) {
@@ -84,6 +92,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return new Result(1, "success", userInfo.getUserId());
     }
 
+    /**
+     * 查询学生列表（分页）
+     * @param params 查询参数
+     * @return 学生列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -159,6 +172,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return new Result(1, "success", result);
     }
 
+    /**
+     * 编辑学生（同步更新登录账号和班级关联）
+     * @param studentInfo 学生信息
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result update(StudentInfo studentInfo) {
@@ -204,6 +222,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 删除学生（逻辑删除，同时删除登录账号和班级关联）
+     * @param userId 学生登录账号
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result delete(String userId) {
@@ -240,6 +263,11 @@ public class StudentManagementServiceImpl implements StudentManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 重置学生密码
+     * @param userId 学生登录账号
+     * @return 操作结果
+     */
     @Override
     public Result resetPassword(String userId) {
         QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();

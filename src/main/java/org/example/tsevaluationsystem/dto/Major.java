@@ -8,6 +8,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 专业信息实体类
+ */
 @Data
 @TableName("tb_major")
 public class Major {

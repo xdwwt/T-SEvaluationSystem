@@ -9,9 +9,17 @@ import org.example.tsevaluationsystem.dto.ClassStudent;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 班级学生关联Mapper接口
+ */
 @Mapper
 public interface ClassStudentMapper extends BaseMapper<ClassStudent> {
 
+    /**
+     * 根据班级ID查询学生列表
+     * @param classId 班级ID
+     * @return 学生列表
+     */
     @Select("SELECT cs.id, s.id as studentId, s.student_no as studentNo, s.name, s.gender, s.grade, m.major_name as major " +
             "FROM tb_class_student cs " +
             "JOIN tb_student_info s ON cs.student_id = s.id " +
@@ -20,6 +28,10 @@ public interface ClassStudentMapper extends BaseMapper<ClassStudent> {
             "ORDER BY s.student_no")
     List<Map<String, Object>> selectStudentsByClassId(@Param("classId") Long classId);
 
+    /**
+     * 查询未分配班级的学生列表
+     * @return 未分配学生列表
+     */
     @Select("SELECT s.id, s.student_no as studentNo, s.name, s.gender, s.grade, m.major_name as major " +
             "FROM tb_student_info s " +
             "LEFT JOIN tb_major m ON s.major_id = m.id " +

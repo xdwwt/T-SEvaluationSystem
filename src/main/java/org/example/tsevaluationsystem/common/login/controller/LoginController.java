@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 登录与密码相关接口
+ */
 @RestController
 @RequestMapping("/main")
 public class LoginController {
@@ -18,6 +21,12 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
+    /**
+     * 用户登录
+     * @param userId 登录账号
+     * @param password 密码
+     * @return JWT Token
+     */
     @PostMapping("/login")
     public Result login(@RequestParam String userId, @RequestParam String password) {
         UserInfo userInfo = new UserInfo();
@@ -26,6 +35,13 @@ public class LoginController {
         return loginService.login(userInfo);
     }
 
+    /**
+     * 修改当前登录用户密码
+     * @param request HTTP请求
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return 修改结果
+     */
     @PostMapping("/password/change")
     public Result changePassword(HttpServletRequest request,
                                  @RequestParam String oldPassword,

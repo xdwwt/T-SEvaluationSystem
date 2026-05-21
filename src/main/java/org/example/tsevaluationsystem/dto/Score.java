@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 成绩信息实体类
+ */
 @Data
 @TableName("tb_score")
 public class Score {

@@ -15,12 +15,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 课程管理服务实现类
+ */
 @Service
 public class CourseManagementServiceImpl implements CourseManagementService {
 
     @Autowired
     private CourseManagementMapper courseManagementMapper;
 
+    /**
+     * 新增课程
+     * @param course 课程信息
+     * @return 操作结果
+     */
     @Override
     public Result insert(Course course) {
         course.setId(IdWorker.getId());
@@ -28,6 +36,11 @@ public class CourseManagementServiceImpl implements CourseManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询课程列表（分页）
+     * @param params 查询参数
+     * @return 课程列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -55,12 +68,21 @@ public class CourseManagementServiceImpl implements CourseManagementService {
         return new Result(1, "success", result);
     }
 
+    /**
+     * 编辑课程
+     * @param course 课程信息
+     * @return 操作结果
+     */
     @Override
     public Result update(Course course) {
         courseManagementMapper.updateById(course);
         return new Result(1, "success", null);
     }
 
+    /**
+     * 查询所有课程
+     * @return 课程列表
+     */
     @Override
     public Result listAll() {
         QueryWrapper<Course> wrapper = new QueryWrapper<>();
@@ -70,6 +92,11 @@ public class CourseManagementServiceImpl implements CourseManagementService {
         return new Result(1, "success", list);
     }
 
+    /**
+     * 删除课程（逻辑删除）
+     * @param id 课程ID
+     * @return 操作结果
+     */
     @Override
     public Result delete(Long id) {
         Course course = courseManagementMapper.selectById(id);

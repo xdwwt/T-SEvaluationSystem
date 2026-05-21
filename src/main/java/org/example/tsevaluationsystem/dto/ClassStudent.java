@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 班级学生关联实体类
+ */
 @Data
 @TableName("tb_class_student")
 public class ClassStudent {

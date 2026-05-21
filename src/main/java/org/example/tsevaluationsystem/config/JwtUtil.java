@@ -5,6 +5,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
+/**
+ * JWT工具类
+ * <p>提供从HTTP请求中解析Token并获取当前登录用户信息的方法</p>
+ */
 public class JwtUtil {
 
     /**

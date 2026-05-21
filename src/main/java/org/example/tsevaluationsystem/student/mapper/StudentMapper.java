@@ -13,6 +13,9 @@ import org.example.tsevaluationsystem.dto.TeacherEvaluation;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 学生数据访问层
+ */
 @Mapper
 public interface StudentMapper extends BaseMapper<TeacherEvaluation> {
 

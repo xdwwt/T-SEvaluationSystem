@@ -15,12 +15,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 院系管理服务实现类
+ */
 @Service
 public class DepartmentManagementServiceImpl implements DepartmentManagementService {
 
     @Autowired
     private DepartmentManagementMapper departmentManagementMapper;
 
+    /**
+     * 新增院系
+     * @param department 院系信息
+     * @return 操作结果
+     */
     @Override
     public Result insert(Department department) {
         QueryWrapper<Department> wrapper = new QueryWrapper<>();
@@ -34,6 +42,11 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         return new Result(1, "success", department.getId());
     }
 
+    /**
+     * 查询院系列表（分页）
+     * @param params 查询参数
+     * @return 院系列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -58,6 +71,10 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         return new Result(1, "success", result);
     }
 
+    /**
+     * 查询所有院系
+     * @return 院系列表
+     */
     @Override
     public Result listAll() {
         QueryWrapper<Department> wrapper = new QueryWrapper<>();
@@ -67,6 +84,11 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         return new Result(1, "success", list);
     }
 
+    /**
+     * 编辑院系
+     * @param department 院系信息
+     * @return 操作结果
+     */
     @Override
     public Result update(Department department) {
         Department exist = departmentManagementMapper.selectById(department.getId());
@@ -86,6 +108,11 @@ public class DepartmentManagementServiceImpl implements DepartmentManagementServ
         return new Result(1, "success", null);
     }
 
+    /**
+     * 删除院系（逻辑删除）
+     * @param id 院系ID
+     * @return 操作结果
+     */
     @Override
     public Result delete(Long id) {
         Department exist = departmentManagementMapper.selectById(id);

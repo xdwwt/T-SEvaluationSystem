@@ -10,9 +10,16 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+/**
+ * MyBatisPlus配置类
+ */
 @Configuration
 public class MyBatisPlusConfig {
 
+    /**
+     * 配置PageHelper分页插件
+     * @return 分页拦截器
+     */
     @Bean
     public PageInterceptor pageInterceptor() {
         PageInterceptor interceptor = new PageInterceptor();
@@ -22,6 +29,13 @@ public class MyBatisPlusConfig {
         return interceptor;
     }
 
+    /**
+     * 配置SqlSessionFactory
+     * @param dataSource 数据源
+     * @param pageInterceptor 分页拦截器
+     * @return SqlSessionFactory实例
+     * @throws Exception 异常
+     */
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource, PageInterceptor pageInterceptor) throws Exception {
         MybatisSqlSessionFactoryBean sessionFactory = new MybatisSqlSessionFactoryBean();

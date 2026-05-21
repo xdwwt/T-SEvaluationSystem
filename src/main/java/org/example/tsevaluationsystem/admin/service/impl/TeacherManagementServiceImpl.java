@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 教师管理服务实现类
+ */
 @Service
 public class TeacherManagementServiceImpl implements TeacherManagementService {
 
@@ -31,6 +34,11 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
     @Autowired
     private DepartmentManagementMapper departmentManagementMapper;
 
+    /**
+     * 新增教师（同时创建登录账号）
+     * @param teacherInfo 教师信息
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result insert(TeacherInfo teacherInfo) {
@@ -66,6 +74,11 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         return new Result(1, "success", userInfo.getUserId());
     }
 
+    /**
+     * 查询教师列表（分页）
+     * @param params 查询参数
+     * @return 教师列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -108,6 +121,10 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         return new Result(1, "success", result);
     }
 
+    /**
+     * 查询所有教师
+     * @return 教师列表
+     */
     @Override
     public Result listAll() {
         QueryWrapper<TeacherInfo> wrapper = new QueryWrapper<>();
@@ -117,6 +134,11 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         return new Result(1, "success", list);
     }
 
+    /**
+     * 重置教师密码
+     * @param userId 教师登录账号
+     * @return 操作结果
+     */
     @Override
     public Result resetPassword(String userId) {
         QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
@@ -130,6 +152,11 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 删除教师（逻辑删除，同时删除登录账号）
+     * @param userId 教师登录账号
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result delete(String userId) {
@@ -156,6 +183,11 @@ public class TeacherManagementServiceImpl implements TeacherManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 编辑教师（同步更新登录账号姓名）
+     * @param teacherInfo 教师信息
+     * @return 操作结果
+     */
     @Override
     @Transactional
     public Result update(TeacherInfo teacherInfo) {

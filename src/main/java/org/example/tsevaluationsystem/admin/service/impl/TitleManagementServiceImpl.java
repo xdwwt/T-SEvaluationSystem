@@ -15,12 +15,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 职称管理服务实现类
+ */
 @Service
 public class TitleManagementServiceImpl implements TitleManagementService {
 
     @Autowired
     private TitleManagementMapper titleManagementMapper;
 
+    /**
+     * 新增职称
+     * @param title 职称信息
+     * @return 操作结果
+     */
     @Override
     public Result insert(Title title) {
         QueryWrapper<Title> wrapper = new QueryWrapper<>();
@@ -34,6 +42,11 @@ public class TitleManagementServiceImpl implements TitleManagementService {
         return new Result(1, "success", title.getId());
     }
 
+    /**
+     * 查询职称列表（分页）
+     * @param params 查询参数
+     * @return 职称列表
+     */
     @Override
     public Result list(Map<String, Object> params) {
         int pageNum = params.get("pageNum") != null ? Integer.parseInt(params.get("pageNum").toString()) : 1;
@@ -58,6 +71,10 @@ public class TitleManagementServiceImpl implements TitleManagementService {
         return new Result(1, "success", result);
     }
 
+    /**
+     * 查询所有职称
+     * @return 职称列表
+     */
     @Override
     public Result listAll() {
         QueryWrapper<Title> wrapper = new QueryWrapper<>();
@@ -67,6 +84,11 @@ public class TitleManagementServiceImpl implements TitleManagementService {
         return new Result(1, "success", list);
     }
 
+    /**
+     * 编辑职称
+     * @param title 职称信息
+     * @return 操作结果
+     */
     @Override
     public Result update(Title title) {
         Title exist = titleManagementMapper.selectById(title.getId());
@@ -85,6 +107,11 @@ public class TitleManagementServiceImpl implements TitleManagementService {
         return new Result(1, "success", null);
     }
 
+    /**
+     * 删除职称（逻辑删除）
+     * @param id 职称ID
+     * @return 操作结果
+     */
     @Override
     public Result delete(Long id) {
         Title exist = titleManagementMapper.selectById(id);
