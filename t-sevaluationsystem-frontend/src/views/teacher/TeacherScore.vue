@@ -22,6 +22,46 @@
       </div>
     </div>
 
+    <!-- 成绩占比设置 -->
+    <div class="section" v-if="selectedClass">
+      <h3 class="section-title">
+        <span class="title-bar"></span>
+        成绩占比设置
+      </h3>
+      <div class="ratio-row">
+        <div class="ratio-item">
+          <label class="ratio-label">平时分占比</label>
+          <div class="ratio-input-wrap">
+            <input
+              type="number"
+              v-model.number="usualRatio"
+              @change="recalcAllScores"
+              class="ratio-input"
+              min="0"
+              max="100"
+              step="1"
+            />
+            <span class="ratio-suffix">%</span>
+          </div>
+        </div>
+        <div class="ratio-divider">:</div>
+        <div class="ratio-item">
+          <label class="ratio-label">期末分占比</label>
+          <div class="ratio-input-wrap">
+            <input
+              type="number"
+              :value="100 - usualRatio"
+              class="ratio-input"
+              readonly
+              tabindex="-1"
+            />
+            <span class="ratio-suffix">%</span>
+          </div>
+        </div>
+      </div>
+      <p class="ratio-hint">修改占比后，下方所有学生的总评成绩将自动重新计算</p>
+    </div>
+
     <!-- 成绩录入 -->
     <div class="section" v-if="selectedClass">
       <div class="section-header">
@@ -145,6 +185,9 @@ const toastVisible = ref(false)
 const toastMessage = ref('')
 let toastTimer = null
 
+// 成绩占比：平时分占比（百分比），默认40%
+const usualRatio = ref(40)
+
 const showToast = (msg, duration = 2000) => {
   toastMessage.value = msg
   toastVisible.value = true
@@ -189,7 +232,7 @@ const handleClassChange = async () => {
           usualScore,
           finalScore,
           score: savedScore ?? (usualScore != null && finalScore != null
-            ? Math.round((usualScore * 0.4 + finalScore * 0.6) * 100) / 100
+            ? calcScoreValue(usualScore, finalScore)
             : null),
           comment: s.comment || ''
         }
@@ -242,7 +285,8 @@ const handleSave = async () => {
       usualScore: s.usualScore === '' ? null : s.usualScore,
       finalScore: s.finalScore === '' ? null : s.finalScore,
       score: s.score === '' ? null : s.score,
-      comment: s.comment
+      comment: s.comment,
+      usualRatio: usualRatio.value
     }))
     const res = await submitScoreApi(payload)
     if (res.code === 1) {
@@ -290,14 +334,26 @@ const handleSave = async () => {
   }
 }
 
+const calcScoreValue = (usual, final) => {
+  const ratio = usualRatio.value / 100
+  return Math.round((usual * ratio + final * (1 - ratio)) * 100) / 100
+}
+
 const calcScore = (item) => {
   const usual = parseFloat(item.usualScore)
   const final = parseFloat(item.finalScore)
   if (!isNaN(usual) && !isNaN(final)) {
-    item.score = Math.round((usual * 0.4 + final * 0.6) * 100) / 100
+    item.score = calcScoreValue(usual, final)
   } else {
     item.score = null
   }
+}
+
+const recalcAllScores = () => {
+  // 限制范围 0~100
+  if (usualRatio.value < 0) usualRatio.value = 0
+  if (usualRatio.value > 100) usualRatio.value = 100
+  studentList.value.forEach(item => calcScore(item))
 }
 
 const fetchScores = async () => {
@@ -480,6 +536,62 @@ onMounted(() => {
 .toggle-label {
   font-size: 13px;
   color: #666;
+}
+
+/* 成绩占比设置 */
+.ratio-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.ratio-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ratio-label {
+  font-size: 13px;
+  color: #666;
+}
+
+.ratio-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratio-input {
+  width: 60px;
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.ratio-input[readonly] {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.ratio-suffix {
+  font-size: 14px;
+  color: #666;
+}
+
+.ratio-divider {
+  font-size: 18px;
+  font-weight: 700;
+  color: #999;
+  padding-bottom: 8px;
+}
+
+.ratio-hint {
+  font-size: 12px;
+  color: #999;
+  margin: 10px 0 0 0;
 }
 
 /* 空状态 */
